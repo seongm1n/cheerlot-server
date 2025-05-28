@@ -18,8 +18,9 @@ public class Player {
     private String backNumber;
     private String position;
     private String batsThrows;
+    private String batsOrder;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "team_id")
+    @JoinColumn(name = "team")
     private Team team;
 }

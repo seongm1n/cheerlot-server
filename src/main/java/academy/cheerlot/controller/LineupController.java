@@ -1,5 +1,6 @@
 package academy.cheerlot.controller;
 
+import academy.cheerlot.service.LineupCrawlerService;
 import academy.cheerlot.service.ScheduleCrawlerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class LineupController {
 
     private final ScheduleCrawlerService scheduleCrawlerService;
+    private final LineupCrawlerService lineupCrawlerService;
 
     @GetMapping("/schedule")
     public ResponseEntity<String> getSchedule() {
         scheduleCrawlerService.crawlingGameId();
+        System.out.println(lineupCrawlerService.crawlAllLineups());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

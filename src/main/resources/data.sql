@@ -1,0 +1,10 @@
+INSERT INTO team (team_code, name) VALUES ('OB', '두산 베어스');
+INSERT INTO team (team_code, name) VALUES ('LT', '롯데 자이언츠');
+INSERT INTO team (team_code, name) VALUES ('SS', '삼성 라이온즈');
+INSERT INTO team (team_code, name) VALUES ('HT', 'KIA 타이거즈');
+INSERT INTO team (team_code, name) VALUES ('HH', '한화 이글스');
+INSERT INTO team (team_code, name) VALUES ('LG', 'LG 트윈스');
+INSERT INTO team (team_code, name) VALUES ('NC', 'NC 다이노스');
+INSERT INTO team (team_code, name) VALUES ('WO', '키움 히어로즈');
+INSERT INTO team (team_code, name) VALUES ('KT', 'KT 위즈');
+INSERT INTO team (team_code, name) VALUES ('SK', 'SSG 랜더스'); 

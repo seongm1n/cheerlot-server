@@ -33,6 +33,13 @@ public class ScheduleCrawlerService {
     private final GameRepository gameRepository;
 
     public void crawlingGameId() {
+        long gameCount = gameRepository.count();
+        if (gameCount > 0) {
+            log.info("기존 게임 데이터 {}개를 삭제합니다.", gameCount);
+            gameRepository.deleteAll();
+            log.info("기존 게임 데이터 삭제 완료");
+        }
+        
         String scheduleJson = getSchedule();
         if (scheduleJson == null) {
             log.error("일정 정보를 가져오는데 실패했습니다.");
@@ -47,11 +54,6 @@ public class ScheduleCrawlerService {
         
         int savedCount = 0;
         for (String gameId : filteredGameIds) {
-            if (gameRepository.existsById(gameId)) {
-                log.info("이미 존재하는 게임 ID입니다: {}", gameId);
-                continue;
-            }
-            
             Game game = new Game();
             game.setGameId(gameId);
             gameRepository.save(game);

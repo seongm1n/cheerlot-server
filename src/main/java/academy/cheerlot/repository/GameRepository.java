@@ -1,4 +1,8 @@
 package academy.cheerlot.repository;
 
-public class GameRepository {
+import academy.cheerlot.domain.Game;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface GameRepository extends JpaRepository<Game, String> {
+
 }

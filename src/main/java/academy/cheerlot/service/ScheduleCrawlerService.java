@@ -27,66 +27,55 @@ public class ScheduleCrawlerService {
 
     private static final String BASE_URL = "https://api-gw.sports.naver.com/schedule/calendar";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36";
+    private static final String REFERER = "https://m.sports.naver.com";
+    private static final String ORIGIN = "https://m.sports.naver.com";
+    private static final int MIN_GAME_ID_LENGTH = 14;
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final GameRepository gameRepository;
 
     public void crawlingGameId() {
+        clearExistingGames();
+        
+        String scheduleJson = fetchScheduleData();
+        if (scheduleJson == null) {
+            log.error("일정 정보를 가져오는데 실패했습니다.");
+            return;
+        }
+        
+        List<String> todayGameIds = extractTodayGameIds(scheduleJson);
+        log.info("오늘 총 {} 개의 게임 ID를 찾았습니다.", todayGameIds.size());
+        
+        List<String> filteredGameIds = filterKboGameIds(todayGameIds);
+        log.info("필터링 후 {} 개의 게임 ID가 남았습니다.", filteredGameIds.size());
+        
+        saveGameIds(filteredGameIds);
+    }
+
+    private void clearExistingGames() {
         long gameCount = gameRepository.count();
         if (gameCount > 0) {
             log.info("기존 게임 데이터 {}개를 삭제합니다.", gameCount);
             gameRepository.deleteAll();
             log.info("기존 게임 데이터 삭제 완료");
         }
-        
-        String scheduleJson = getSchedule();
-        if (scheduleJson == null) {
-            log.error("일정 정보를 가져오는데 실패했습니다.");
-            return;
-        }
-        
-        List<String> todayGameIds = getTodayGameIds(scheduleJson);
-        log.info("오늘 총 {} 개의 게임 ID를 찾았습니다.", todayGameIds.size());
-        
-        List<String> filteredGameIds = filterGameIds(todayGameIds);
-        log.info("필터링 후 {} 개의 게임 ID가 남았습니다.", filteredGameIds.size());
-        
-        int savedCount = 0;
-        for (String gameId : filteredGameIds) {
-            Game game = new Game();
-            game.setGameId(gameId);
-            gameRepository.save(game);
-            savedCount++;
-            
-            log.info("게임 ID 저장: {}", gameId);
-        }
-        
-        log.info("총 {}개의 새로운 게임 ID가 저장되었습니다.", savedCount);
     }
 
-     private String getSchedule() {
+    private String fetchScheduleData() {
         LocalDate today = LocalDate.now();
         String dateStr = today.format(DATE_FORMATTER);
         log.info("네이버 스포츠 일정 API 호출: {}", dateStr);
 
         try {
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(BASE_URL)
-                    .queryParam("upperCategoryId", "kbaseball")
-                    .queryParam("categoryIds", "kbo,kbaseballetc,premier12,apbc")
-                    .queryParam("date", dateStr);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36");
-            headers.set("Referer", "https://m.sports.naver.com");
-            headers.set("Origin", "https://m.sports.naver.com");
-
-            HttpEntity<?> entity = new HttpEntity<>(headers);
-
+            String url = buildScheduleUrl(dateStr);
+            HttpEntity<?> requestEntity = createRequestEntity();
+            
             ResponseEntity<String> response = restTemplate.exchange(
-                    builder.toUriString(),
+                    url,
                     HttpMethod.GET,
-                    entity,
+                    requestEntity,
                     String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
@@ -96,20 +85,35 @@ public class ScheduleCrawlerService {
                 log.error("API 요청 실패: 상태 코드 {}", response.getStatusCodeValue());
                 return null;
             }
-
         } catch (Exception e) {
             log.error("API 요청 중 오류 발생: {}", e.getMessage(), e);
             return null;
         }
     }
     
-    private List<String> getTodayGameIds(String scheduleJson) {
+    private String buildScheduleUrl(String dateStr) {
+        return UriComponentsBuilder.fromHttpUrl(BASE_URL)
+                .queryParam("upperCategoryId", "kbaseball")
+                .queryParam("categoryIds", "kbo,kbaseballetc,premier12,apbc")
+                .queryParam("date", dateStr)
+                .toUriString();
+    }
+    
+    private HttpEntity<?> createRequestEntity() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("User-Agent", USER_AGENT);
+        headers.set("Referer", REFERER);
+        headers.set("Origin", ORIGIN);
+        return new HttpEntity<>(headers);
+    }
+    
+    private List<String> extractTodayGameIds(String scheduleJson) {
         List<String> gameIds = new ArrayList<>();
         
         try {
             JsonNode rootNode = objectMapper.readTree(scheduleJson);
             
-            if (rootNode.get("code").asInt() != 200 || !rootNode.get("success").asBoolean()) {
+            if (!isSuccessResponse(rootNode)) {
                 return gameIds;
             }
             
@@ -126,23 +130,34 @@ public class ScheduleCrawlerService {
                     break;
                 }
             }
-            
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("JSON 파싱 중 오류 발생", e);
         }
         
         return gameIds;
     }
+    
+    private boolean isSuccessResponse(JsonNode rootNode) {
+        return rootNode.get("code").asInt() == 200 && rootNode.get("success").asBoolean();
+    }
 
-    private List<String> filterGameIds(List<String> gameIds) {
-        List<String> kboGameIds = new ArrayList<>();
-        
+    private List<String> filterKboGameIds(List<String> gameIds) {
+        return gameIds.stream()
+                .filter(gameId -> gameId.length() >= MIN_GAME_ID_LENGTH)
+                .toList();
+    }
+    
+    private void saveGameIds(List<String> gameIds) {
+        int savedCount = 0;
         for (String gameId : gameIds) {
-            if (gameId.length() >= 14) {
-                kboGameIds.add(gameId);
-            }
+            Game game = new Game();
+            game.setGameId(gameId);
+            gameRepository.save(game);
+            savedCount++;
+            
+            log.info("게임 ID 저장: {}", gameId);
         }
-
-        return kboGameIds;
+        
+        log.info("총 {}개의 새로운 게임 ID가 저장되었습니다.", savedCount);
     }
 }

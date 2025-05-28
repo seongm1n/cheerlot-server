@@ -17,10 +17,10 @@ public class LineupController {
     private final ScheduleCrawlerService scheduleCrawlerService;
     private final LineupCrawlerService lineupCrawlerService;
 
-    @GetMapping("/schedule")
+    @GetMapping("/crawl")
     public ResponseEntity<String> getSchedule() {
         scheduleCrawlerService.crawlingGameId();
-        System.out.println(lineupCrawlerService.crawlAllLineups());
+        lineupCrawlerService.crawlAllLineups();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

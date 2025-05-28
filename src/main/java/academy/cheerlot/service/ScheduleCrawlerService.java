@@ -63,7 +63,7 @@ public class ScheduleCrawlerService {
         log.info("총 {}개의 새로운 게임 ID가 저장되었습니다.", savedCount);
     }
 
-    public String getSchedule() {
+     private String getSchedule() {
         LocalDate today = LocalDate.now();
         String dateStr = today.format(DATE_FORMATTER);
         log.info("네이버 스포츠 일정 API 호출: {}", dateStr);
@@ -101,7 +101,7 @@ public class ScheduleCrawlerService {
         }
     }
     
-    public List<String> getTodayGameIds(String scheduleJson) {
+    private List<String> getTodayGameIds(String scheduleJson) {
         List<String> gameIds = new ArrayList<>();
         
         try {
@@ -132,7 +132,7 @@ public class ScheduleCrawlerService {
         return gameIds;
     }
 
-    public List<String> filterGameIds(List<String> gameIds) {
+    private List<String> filterGameIds(List<String> gameIds) {
         List<String> kboGameIds = new ArrayList<>();
         
         for (String gameId : gameIds) {

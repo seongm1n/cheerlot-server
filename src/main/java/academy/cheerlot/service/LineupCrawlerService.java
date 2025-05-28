@@ -1,4 +1,4 @@
 package academy.cheerlot.service;
 
-public class LineupService {
+public class LineupCrawlerService {
 }

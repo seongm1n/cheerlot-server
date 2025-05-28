@@ -1,4 +1,7 @@
 package academy.cheerlot.repository;
 
-public class TeamRepository {
+import academy.cheerlot.domain.Team;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TeamRepository extends JpaRepository<Team, String> {
 }

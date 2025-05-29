@@ -30,7 +30,7 @@ public class ScheduleCrawlerService {
     private static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36";
     private static final String REFERER = "https://m.sports.naver.com";
     private static final String ORIGIN = "https://m.sports.naver.com";
-    private static final int MIN_GAME_ID_LENGTH = 14;
+    private static final int GAME_ID_LENGTH = 17;
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -143,7 +143,7 @@ public class ScheduleCrawlerService {
 
     private List<String> filterKboGameIds(List<String> gameIds) {
         return gameIds.stream()
-                .filter(gameId -> gameId.length() >= MIN_GAME_ID_LENGTH)
+                .filter(gameId -> gameId.length() == GAME_ID_LENGTH)
                 .toList();
     }
     

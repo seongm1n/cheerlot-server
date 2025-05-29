@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -41,8 +42,6 @@ public class LineupCrawlerService {
     public void crawlAllLineups() {
         log.info("모든 경기의 라인업 정보를 크롤링을 시작합니다.");
         
-        clearExistingPlayers();
-        
         List<Game> games = gameRepository.findAll();
         if (games.isEmpty()) {
             log.warn("크롤링할 게임이 없습니다. 먼저 게임 데이터를 수집해주세요.");
@@ -50,15 +49,6 @@ public class LineupCrawlerService {
         }
         
         processAllGames(games);
-    }
-    
-    private void clearExistingPlayers() {
-        long playerCount = playerRepository.count();
-        if (playerCount > 0) {
-            log.info("기존 선수 데이터 {}개를 삭제합니다.", playerCount);
-            playerRepository.deleteAll();
-            log.info("선수 데이터 삭제 완료");
-        }
     }
     
     private void processAllGames(List<Game> games) {
@@ -103,6 +93,8 @@ public class LineupCrawlerService {
             return 0;
         }
         
+        clearTeamPlayers(homeTeam, awayTeam);
+        
         List<Player> savedPlayers = new ArrayList<>();
         
         JsonNode homeLineup = previewData.get("homeTeamLineUp").get("fullLineUp");
@@ -112,6 +104,15 @@ public class LineupCrawlerService {
         savedPlayers.addAll(saveLineup(awayLineup, awayTeam));
         
         return savedPlayers.size();
+    }
+    
+    private void clearTeamPlayers(Team homeTeam, Team awayTeam) {
+        log.info("홈팀({})과 원정팀({})의 기존 선수 데이터를 삭제합니다.", homeTeam.getName(), awayTeam.getName());
+        
+        playerRepository.deleteByTeam(homeTeam);
+        playerRepository.deleteByTeam(awayTeam);
+        
+        log.info("팀별 선수 데이터 삭제 완료");
     }
     
     private boolean isSuccessResponse(JsonNode rootNode) {

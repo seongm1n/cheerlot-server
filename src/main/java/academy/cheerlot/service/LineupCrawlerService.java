@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -95,15 +96,25 @@ public class LineupCrawlerService {
         
         clearTeamPlayers(homeTeam, awayTeam);
         
-        List<Player> savedPlayers = new ArrayList<>();
+        List<Player> homePlayers = new ArrayList<>();
+        List<Player> awayPlayers = new ArrayList<>();
         
         JsonNode homeLineup = previewData.get("homeTeamLineUp").get("fullLineUp");
-        savedPlayers.addAll(saveLineup(homeLineup, homeTeam));
+        homePlayers.addAll(saveLineup(homeLineup, homeTeam));
         
         JsonNode awayLineup = previewData.get("awayTeamLineUp").get("fullLineUp");
-        savedPlayers.addAll(saveLineup(awayLineup, awayTeam));
+        awayPlayers.addAll(saveLineup(awayLineup, awayTeam));
         
-        return savedPlayers.size();
+        if (!homePlayers.isEmpty() && !awayPlayers.isEmpty()) {
+            updateTeamInfo(homeTeam, awayTeam);
+            log.info("게임 ID: {}에서 홈팀 {}명, 원정팀 {}명 선수 저장 후 팀 정보 업데이트 완료", 
+                    gameId, homePlayers.size(), awayPlayers.size());
+        } else {
+            log.warn("게임 ID: {}에서 선수 저장 실패 - 홈팀: {}명, 원정팀: {}명. 팀 정보 업데이트 건너뜀", 
+                    gameId, homePlayers.size(), awayPlayers.size());
+        }
+        
+        return homePlayers.size() + awayPlayers.size();
     }
     
     private void clearTeamPlayers(Team homeTeam, Team awayTeam) {
@@ -198,5 +209,19 @@ public class LineupCrawlerService {
         headers.set("Referer", REFERER);
         headers.set("Origin", ORIGIN);
         return new HttpEntity<>(headers);
+    }
+    
+    private void updateTeamInfo(Team homeTeam, Team awayTeam) {
+        LocalDate today = LocalDate.now();
+        
+        homeTeam.setLastUpdated(today);
+        homeTeam.setLastOpponent(awayTeam.getName());
+        teamRepository.save(homeTeam);
+        
+        awayTeam.setLastUpdated(today);
+        awayTeam.setLastOpponent(homeTeam.getName());
+        teamRepository.save(awayTeam);
+        
+        log.info("팀 정보 업데이트 완료: {} vs {} ({})", homeTeam.getName(), awayTeam.getName(), today);
     }
 }

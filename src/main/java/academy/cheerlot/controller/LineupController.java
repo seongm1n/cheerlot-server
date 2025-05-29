@@ -1,6 +1,9 @@
 package academy.cheerlot.controller;
 
+import academy.cheerlot.domain.Player;
 import academy.cheerlot.domain.Team;
+import academy.cheerlot.dto.LineupResponse;
+import academy.cheerlot.repository.PlayerRepository;
 import academy.cheerlot.repository.TeamRepository;
 import academy.cheerlot.service.LineupCrawlerService;
 import academy.cheerlot.service.ScheduleCrawlerService;
@@ -23,6 +26,7 @@ public class LineupController {
     private final ScheduleCrawlerService scheduleCrawlerService;
     private final LineupCrawlerService lineupCrawlerService;
     private final TeamRepository teamRepository;
+    private final PlayerRepository playerRepository;
 
     @GetMapping("/crawl")
     public ResponseEntity<String> getSchedule() {
@@ -30,17 +34,24 @@ public class LineupController {
         lineupCrawlerService.crawlAllLineups();
         return new ResponseEntity<>("크롤링 완료", HttpStatus.OK);
     }
-    
-    @GetMapping("/teams")
-    public ResponseEntity<List<Team>> getAllTeams() {
-        List<Team> teams = teamRepository.findAll();
-        return ResponseEntity.ok(teams);
-    }
-    
-    @GetMapping("/teams/{teamCode}")
-    public ResponseEntity<Team> getTeam(@PathVariable String teamCode) {
-        Optional<Team> team = teamRepository.findById(teamCode);
-        return team.map(ResponseEntity::ok)
-                  .orElse(ResponseEntity.notFound().build());
+
+    @GetMapping("/lineups/{teamCode}")
+    public ResponseEntity<LineupResponse> getLineup(@PathVariable String teamCode) {
+        Optional<Team> teamOpt = teamRepository.findById(teamCode);
+        
+        if (teamOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Team team = teamOpt.get();
+        List<Player> players = playerRepository.findByTeamOrderByBatsOrder(team);
+        
+        LineupResponse response = new LineupResponse(
+                team.getLastUpdated(),
+                team.getLastOpponent(),
+                players
+        );
+        
+        return ResponseEntity.ok(response);
     }
 }

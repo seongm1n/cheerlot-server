@@ -14,7 +14,7 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String Name;
+    private String name;
     private String backNumber;
     private String position;
     private String batsThrows;

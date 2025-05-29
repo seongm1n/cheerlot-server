@@ -15,9 +15,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,8 +43,6 @@ public class LineupCrawlerService {
     public void crawlAllLineups() {
         log.info("모든 경기의 라인업 정보를 크롤링을 시작합니다.");
         
-        clearExistingPlayers();
-        
         List<Game> games = gameRepository.findAll();
         if (games.isEmpty()) {
             log.warn("크롤링할 게임이 없습니다. 먼저 게임 데이터를 수집해주세요.");
@@ -50,15 +50,6 @@ public class LineupCrawlerService {
         }
         
         processAllGames(games);
-    }
-    
-    private void clearExistingPlayers() {
-        long playerCount = playerRepository.count();
-        if (playerCount > 0) {
-            log.info("기존 선수 데이터 {}개를 삭제합니다.", playerCount);
-            playerRepository.deleteAll();
-            log.info("선수 데이터 삭제 완료");
-        }
     }
     
     private void processAllGames(List<Game> games) {
@@ -103,15 +94,36 @@ public class LineupCrawlerService {
             return 0;
         }
         
-        List<Player> savedPlayers = new ArrayList<>();
+        clearTeamPlayers(homeTeam, awayTeam);
+        
+        List<Player> homePlayers = new ArrayList<>();
+        List<Player> awayPlayers = new ArrayList<>();
         
         JsonNode homeLineup = previewData.get("homeTeamLineUp").get("fullLineUp");
-        savedPlayers.addAll(saveLineup(homeLineup, homeTeam));
+        homePlayers.addAll(saveLineup(homeLineup, homeTeam));
         
         JsonNode awayLineup = previewData.get("awayTeamLineUp").get("fullLineUp");
-        savedPlayers.addAll(saveLineup(awayLineup, awayTeam));
+        awayPlayers.addAll(saveLineup(awayLineup, awayTeam));
         
-        return savedPlayers.size();
+        if (!homePlayers.isEmpty() && !awayPlayers.isEmpty()) {
+            updateTeamInfo(homeTeam, awayTeam);
+            log.info("게임 ID: {}에서 홈팀 {}명, 원정팀 {}명 선수 저장 후 팀 정보 업데이트 완료", 
+                    gameId, homePlayers.size(), awayPlayers.size());
+        } else {
+            log.warn("게임 ID: {}에서 선수 저장 실패 - 홈팀: {}명, 원정팀: {}명. 팀 정보 업데이트 건너뜀", 
+                    gameId, homePlayers.size(), awayPlayers.size());
+        }
+        
+        return homePlayers.size() + awayPlayers.size();
+    }
+    
+    private void clearTeamPlayers(Team homeTeam, Team awayTeam) {
+        log.info("홈팀({})과 원정팀({})의 기존 선수 데이터를 삭제합니다.", homeTeam.getName(), awayTeam.getName());
+        
+        playerRepository.deleteByTeam(homeTeam);
+        playerRepository.deleteByTeam(awayTeam);
+        
+        log.info("팀별 선수 데이터 삭제 완료");
     }
     
     private boolean isSuccessResponse(JsonNode rootNode) {
@@ -197,5 +209,19 @@ public class LineupCrawlerService {
         headers.set("Referer", REFERER);
         headers.set("Origin", ORIGIN);
         return new HttpEntity<>(headers);
+    }
+    
+    private void updateTeamInfo(Team homeTeam, Team awayTeam) {
+        LocalDate today = LocalDate.now();
+        
+        homeTeam.setLastUpdated(today);
+        homeTeam.setLastOpponent(awayTeam.getName());
+        teamRepository.save(homeTeam);
+        
+        awayTeam.setLastUpdated(today);
+        awayTeam.setLastOpponent(homeTeam.getName());
+        teamRepository.save(awayTeam);
+        
+        log.info("팀 정보 업데이트 완료: {} vs {} ({})", homeTeam.getName(), awayTeam.getName(), today);
     }
 }

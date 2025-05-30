@@ -7,4 +7,4 @@ INSERT INTO team (team_code, name) VALUES ('LG', 'LG 트윈스');
 INSERT INTO team (team_code, name) VALUES ('NC', 'NC 다이노스');
 INSERT INTO team (team_code, name) VALUES ('WO', '키움 히어로즈');
 INSERT INTO team (team_code, name) VALUES ('KT', 'KT 위즈');
-INSERT INTO team (team_code, name) VALUES ('SK', 'SSG 랜더스'); 
+INSERT INTO team (team_code, name) VALUES ('SK', 'SSG 랜더스');

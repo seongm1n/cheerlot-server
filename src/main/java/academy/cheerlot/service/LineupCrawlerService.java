@@ -93,17 +93,19 @@ public class LineupCrawlerService {
             log.error("게임 ID: {}의 홈팀 또는 원정팀 정보를 찾을 수 없습니다.", gameId);
             return 0;
         }
-        
-        clearTeamPlayers(homeTeam, awayTeam);
-        
-        List<Player> homePlayers = new ArrayList<>();
-        List<Player> awayPlayers = new ArrayList<>();
-        
+
         JsonNode homeLineup = previewData.get("homeTeamLineUp").get("fullLineUp");
-        homePlayers.addAll(saveLineup(homeLineup, homeTeam));
-        
         JsonNode awayLineup = previewData.get("awayTeamLineUp").get("fullLineUp");
-        awayPlayers.addAll(saveLineup(awayLineup, awayTeam));
+
+        if (!checkLineup(homeLineup) || !checkLineup(awayLineup)) {
+            log.error("아직 라인업이 나오지 않았습니다.");
+            return 0;
+        }
+
+        clearTeamPlayers(homeTeam, awayTeam);
+
+        List<Player> homePlayers = new ArrayList<>(saveLineup(homeLineup, homeTeam));
+        List<Player> awayPlayers = new ArrayList<>(saveLineup(awayLineup, awayTeam));
         
         if (!homePlayers.isEmpty() && !awayPlayers.isEmpty()) {
             updateTeamInfo(homeTeam, awayTeam);
@@ -156,6 +158,15 @@ public class LineupCrawlerService {
         }
         
         return savedPlayers;
+    }
+
+    private boolean checkLineup(JsonNode lineupNode) {
+        for (JsonNode playerNode : lineupNode) {
+            if (playerNode.has("batorder")) {
+                return true;
+            }
+        }
+        return false;
     }
     
     private Player createPlayerFromNode(JsonNode playerNode, Team team) {

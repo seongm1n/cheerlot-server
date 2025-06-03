@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,9 +46,12 @@ public class LineupController {
         
         Team team = teamOpt.get();
         List<Player> players = playerRepository.findByTeamOrderByBatsOrder(team);
-        
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM월 dd일");
+        String lastUpdated = team.getLastUpdated().format(formatter);
+
         LineupResponse response = new LineupResponse(
-                team.getLastUpdated(),
+                lastUpdated,
                 team.getLastOpponent(),
                 players
         );

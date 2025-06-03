@@ -97,7 +97,7 @@ public class LineupCrawlerService {
         JsonNode homeLineup = previewData.get("homeTeamLineUp").get("fullLineUp");
         JsonNode awayLineup = previewData.get("awayTeamLineUp").get("fullLineUp");
 
-        if (!checkLineup(homeLineup, homeTeam) || !checkLineup(awayLineup, awayTeam)) {
+        if (!checkLineup(homeLineup) || !checkLineup(awayLineup)) {
             log.error("아직 라인업이 나오지 않았습니다.");
             return 0;
         }
@@ -160,17 +160,13 @@ public class LineupCrawlerService {
         return savedPlayers;
     }
 
-    private boolean checkLineup(JsonNode lineupNode, Team team) {
-        List<Player> savedPlayers = new ArrayList<>();
-
-        boolean flag = false;
+    private boolean checkLineup(JsonNode lineupNode) {
         for (JsonNode playerNode : lineupNode) {
             if (playerNode.has("batorder")) {
-                flag = true;
+                return true;
             }
         }
-
-        return flag;
+        return false;
     }
     
     private Player createPlayerFromNode(JsonNode playerNode, Team team) {

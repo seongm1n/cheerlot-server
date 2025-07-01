@@ -51,11 +51,11 @@ public class CrawlerSchedulingService {
             String errorTime = LocalDateTime.now().format(DATE_TIME_FORMATTER);
             log.error("=== 초기 크롤링 실행 중 오류 발생 - {} ===", errorTime);
             log.error("오류 내용: {}", e.getMessage(), e);
-            log.error("정기 스케줄링 시간(2시간 후 정각)에 다시 시도됩니다.");
+            log.error("정기 스케줄링 시간(1시간 후 정각)에 다시 시도됩니다.");
         }
     }
 
-    @Scheduled(cron = "0 0 */2 * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void executeCrawling() {
         String currentTime = LocalDateTime.now().format(DATE_TIME_FORMATTER);
         log.info("=== 자동 크롤링 시작 - {} ===", currentTime);
@@ -76,7 +76,7 @@ public class CrawlerSchedulingService {
             String errorTime = LocalDateTime.now().format(DATE_TIME_FORMATTER);
             log.error("=== 자동 크롤링 실행 중 오류 발생 - {} ===", errorTime);
             log.error("오류 내용: {}", e.getMessage(), e);
-            log.error("다음 스케줄링 시간(2시간 후 정각)에 다시 시도됩니다.");
+            log.error("다음 스케줄링 시간(1시간 후 정각)에 다시 시도됩니다.");
         }
     }
 } 

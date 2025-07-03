@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/layout :: head">
+    <title>선수 관리 - Cheerlot</title>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 사이드바 -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
+                        <span>관리자 메뉴</span>
+                    </h6>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin}">
+                                <i class="bi bi-house"></i>
+                                대시보드
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" th:href="@{/admin/players}">
+                                <i class="bi bi-people"></i>
+                                선수 관리
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <!-- 메인 콘텐츠 -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <!-- 페이지 헤더 -->
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h2">선수 관리</h1>
+                    </div>
+                </div>
+                
+                <!-- 알림 메시지 -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <!-- 페이지 컨텐츠 -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h2>선수 관리</h2>
+                                <p class="text-muted">등록된 선수들의 정보를 조회하고 관리할 수 있습니다.</p>
+                            </div>
+                            <div>
+                                <a th:href="@{/admin/players/new}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> 새 선수 추가
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 필터링 -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <form th:action="@{/admin/players}" method="get" class="row g-3">
+                                    <div class="col-md-4">
+                                        <label for="teamCode" class="form-label">팀 선택</label>
+                                        <select class="form-select" id="teamCode" name="teamCode" onchange="this.form.submit()">
+                                            <option value="">전체 팀</option>
+                                            <option th:each="team : ${teams}" 
+                                                    th:value="${team.teamCode}" 
+                                                    th:text="${team.name}"
+                                                    th:selected="${team.teamCode == selectedTeamCode}">
+                                                팀명
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-8 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-outline-primary me-2">
+                                            <i class="bi bi-funnel"></i> 필터 적용
+                                        </button>
+                                        <a th:href="@{/admin/players}" class="btn btn-outline-secondary">
+                                            <i class="bi bi-arrow-clockwise"></i> 전체 보기
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 선택된 팀 정보 -->
+                <div th:if="${selectedTeam}" class="row mb-3">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <div>
+                                    <strong th:text="${selectedTeam.name}">팀명</strong> 선수 목록
+                                    <span th:if="${selectedTeam.lastUpdated}" class="text-muted">
+                                        (마지막 업데이트: <span th:text="${#temporals.format(selectedTeam.lastUpdated, 'yyyy-MM-dd')}"></span>)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 선수 목록 테이블 -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-people"></i> 
+                                    선수 목록 
+                                    <span class="badge bg-secondary" th:text="${#lists.size(players)}">0</span>
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div th:if="${#lists.isEmpty(players)}" class="text-center p-5">
+                                    <i class="bi bi-person-x text-muted" style="font-size: 3rem;"></i>
+                                    <h5 class="text-muted mt-3">등록된 선수가 없습니다</h5>
+                                    <p class="text-muted">새 선수를 추가하거나 크롤링을 실행해보세요.</p>
+                                    <a th:href="@{/admin/players/new}" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle"></i> 첫 번째 선수 추가
+                                    </a>
+                                </div>
+                                
+                                <div th:if="${!#lists.isEmpty(players)}" class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>이름</th>
+                                                <th>등번</th>
+                                                <th>포지션</th>
+                                                <th>타순</th>
+                                                <th>타격/투구</th>
+                                                <th>팀</th>
+                                                <th>관리</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="player : ${players}">
+                                                <td class="fw-bold text-muted" th:text="${player.id}">1</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                             style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                                            <span th:text="${#strings.substring(player.name, 0, 1)}">김</span>
+                                                        </div>
+                                                        <strong th:text="${player.name}">선수명</strong>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary" th:text="${player.backNumber}">0</span>
+                                                </td>
+                                                <td th:text="${player.position}">포지션</td>
+                                                <td>
+                                                    <span th:if="${player.batsOrder != null and player.batsOrder != ''}" 
+                                                          class="badge bg-info" th:text="${player.batsOrder + '번'}">1번</span>
+                                                    <span th:if="${player.batsOrder == null or player.batsOrder == ''}" 
+                                                          class="text-muted">-</span>
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted" th:text="${player.batsThrows ?: '미정'}">우투우타</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark" th:text="${player.team.name}">팀명</span>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm" role="group">
+                                                        <a th:href="@{/admin/players/{id}/edit(id=${player.id})}" 
+                                                           class="btn btn-outline-primary" title="수정">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <form th:action="@{/admin/players/{id}/delete(id=${player.id})}" 
+                                                              method="post" class="d-inline"
+                                                              onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                                                            <button type="submit" class="btn btn-outline-danger" title="삭제">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 통계 정보 -->
+                <div th:if="${!#lists.isEmpty(players)}" class="row mt-4">
+                    <div class="col-12">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-3">
+                                        <div class="h4 text-primary" th:text="${#lists.size(players)}">0</div>
+                                        <div class="text-muted">총 선수 수</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="h4 text-success" th:text="${#lists.size(teams)}">0</div>
+                                        <div class="text-muted">등록된 팀 수</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="h4 text-info">
+                                            <span th:text="${#lists.size(players) != null ? #lists.size(players) : 0}">0</span>
+                                        </div>
+                                        <div class="text-muted">활성 선수</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="h4 text-warning">
+                                            <span th:text="${#lists.size(teams) != null ? #lists.size(teams) : 0}">0</span>
+                                        </div>
+                                        <div class="text-muted">참여 팀</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // 테이블 행 클릭 시 수정 페이지로 이동
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('click', function(e) {
+                    // 버튼 클릭 시에는 행 클릭 이벤트 무시
+                    if (e.target.closest('.btn-group')) {
+                        return;
+                    }
+                    
+                    const playerId = this.querySelector('td:first-child').textContent.trim();
+                    window.location.href = `/admin/players/${playerId}/edit`;
+                });
+                
+                // 마우스 오버 시 커서 변경
+                row.style.cursor = 'pointer';
+            });
+        });
+    </script>
+</body>
+</html> 

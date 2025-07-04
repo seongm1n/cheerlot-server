@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -166,5 +167,62 @@ public class AdminController {
         }
         
         return "redirect:/admin/players";
+    }
+
+    @GetMapping("/teams")
+    public String listTeams(Model model) {
+        List<Team> teams = teamRepository.findAll();
+        
+        for (Team team : teams) {
+            int playerCount = playerRepository.findByTeamOrderByBatsOrder(team).size();
+            team.setPlayerCount(playerCount);
+        }
+        
+        model.addAttribute("teams", teams);
+        model.addAttribute("pageTitle", "팀 관리");
+        
+        return "admin/teams";
+    }
+
+    @PostMapping("/teams/{teamCode}/update")
+    public String updateTeam(@PathVariable String teamCode,
+                           @RequestParam(required = false) String lastOpponent,
+                           @RequestParam(required = false) String lastUpdated,
+                           RedirectAttributes redirectAttributes) {
+        try {
+            Optional<Team> teamOpt = teamRepository.findById(teamCode);
+            if (teamOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "팀을 찾을 수 없습니다.");
+                return "redirect:/admin/teams";
+            }
+            
+            Team team = teamOpt.get();
+            
+            if (lastOpponent != null && !lastOpponent.trim().isEmpty()) {
+                team.setLastOpponent(lastOpponent.trim());
+            }
+            
+            if (lastUpdated != null && !lastUpdated.trim().isEmpty()) {
+                try {
+                    team.setLastUpdated(LocalDate.parse(lastUpdated));
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("error", "날짜 형식이 올바르지 않습니다. (YYYY-MM-DD)");
+                    return "redirect:/admin/teams";
+                }
+            } else {
+                team.setLastUpdated(LocalDate.now());
+            }
+            
+            teamRepository.save(team);
+            
+            log.info("팀 정보 업데이트 완료: {} (코드: {})", team.getName(), teamCode);
+            redirectAttributes.addFlashAttribute("success", "팀 정보가 성공적으로 업데이트되었습니다.");
+            
+        } catch (Exception e) {
+            log.error("팀 정보 업데이트 중 오류 발생: {}", e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "팀 정보 업데이트 중 오류가 발생했습니다.");
+        }
+        
+        return "redirect:/admin/teams";
     }
 } 

@@ -26,6 +26,12 @@
                                 선수 관리
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/admin/teams}">
+                                <i class="bi bi-shield"></i>
+                                팀 관리
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -58,12 +64,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h2>선수 관리</h2>
-                                <p class="text-muted">등록된 선수들의 정보를 조회하고 관리할 수 있습니다.</p>
-                            </div>
-                            <div>
-                                <a th:href="@{/admin/players/new}" class="btn btn-primary">
-                                    <i class="bi bi-plus-circle"></i> 새 선수 추가
-                                </a>
+                                <p class="text-muted">등록된 선수들의 정보를 조회하고 관리할 수 있습니다. 테이블 하단에서 바로 새 선수를 추가할 수 있습니다.</p>
                             </div>
                         </div>
                     </div>
@@ -133,13 +134,10 @@
                                 <div th:if="${#lists.isEmpty(players)}" class="text-center p-5">
                                     <i class="bi bi-person-x text-muted" style="font-size: 3rem;"></i>
                                     <h5 class="text-muted mt-3">등록된 선수가 없습니다</h5>
-                                    <p class="text-muted">새 선수를 추가하거나 크롤링을 실행해보세요.</p>
-                                    <a th:href="@{/admin/players/new}" class="btn btn-primary">
-                                        <i class="bi bi-plus-circle"></i> 첫 번째 선수 추가
-                                    </a>
+                                    <p class="text-muted">아래 입력 필드를 사용하여 첫 번째 선수를 추가해보세요.</p>
                                 </div>
                                 
-                                <div th:if="${!#lists.isEmpty(players)}" class="table-responsive">
+                                <div class="table-responsive">
                                     <table class="table table-hover mb-0">
                                         <thead>
                                             <tr>
@@ -153,8 +151,8 @@
                                                 <th>관리</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            <tr th:each="player : ${players}">
+                                        <tbody id="playersTableBody">
+                                            <tr th:each="player : ${players}" class="existing-player-row">
                                                 <td class="fw-bold text-muted" th:text="${player.id}">1</td>
                                                 <td>
                                                     <div class="d-flex align-items-center">
@@ -194,6 +192,54 @@
                                                                 <i class="bi bi-trash"></i>
                                                             </button>
                                                         </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            
+                                            <!-- 새 선수 추가 행 -->
+                                            <tr id="newPlayerRow" class="table-success">
+                                                <td class="fw-bold text-muted">NEW</td>
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           id="newPlayerName" placeholder="선수 이름 입력" required>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           id="newPlayerBackNumber" placeholder="등번">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           id="newPlayerPosition" placeholder="포지션">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           id="newPlayerBatsOrder" placeholder="타순">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" 
+                                                           id="newPlayerBatsThrows" placeholder="타격/투구">
+                                                </td>
+                                                <td>
+                                                    <select class="form-select form-select-sm" id="newPlayerTeamCode" required>
+                                                        <option value="">팀 선택</option>
+                                                        <option th:each="team : ${teams}" 
+                                                                th:value="${team.teamCode}" 
+                                                                th:text="${team.name}"
+                                                                th:selected="${team.teamCode == selectedTeamCode}">
+                                                            팀명
+                                                        </option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm" role="group">
+                                                        <button type="button" class="btn btn-success" 
+                                                                id="saveNewPlayerBtn" title="저장">
+                                                            <i class="bi bi-check-lg"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-secondary" 
+                                                                id="clearNewPlayerBtn" title="초기화">
+                                                            <i class="bi bi-arrow-clockwise"></i>
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -244,10 +290,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // 테이블 행 클릭 시 수정 페이지로 이동
         document.addEventListener('DOMContentLoaded', function() {
-            const tableRows = document.querySelectorAll('tbody tr');
-            tableRows.forEach(row => {
+            // 기존 선수 행 클릭 시 수정 페이지로 이동
+            const existingPlayerRows = document.querySelectorAll('.existing-player-row');
+            existingPlayerRows.forEach(row => {
                 row.addEventListener('click', function(e) {
                     // 버튼 클릭 시에는 행 클릭 이벤트 무시
                     if (e.target.closest('.btn-group')) {
@@ -261,7 +307,101 @@
                 // 마우스 오버 시 커서 변경
                 row.style.cursor = 'pointer';
             });
+            
+            // 새 선수 저장 버튼 클릭 이벤트
+            document.getElementById('saveNewPlayerBtn').addEventListener('click', function() {
+                const name = document.getElementById('newPlayerName').value.trim();
+                const backNumber = document.getElementById('newPlayerBackNumber').value.trim();
+                const position = document.getElementById('newPlayerPosition').value.trim();
+                const batsOrder = document.getElementById('newPlayerBatsOrder').value.trim();
+                const batsThrows = document.getElementById('newPlayerBatsThrows').value.trim();
+                const teamCode = document.getElementById('newPlayerTeamCode').value;
+                
+                // 필수 필드 검증
+                if (!name) {
+                    alert('선수 이름을 입력해주세요.');
+                    document.getElementById('newPlayerName').focus();
+                    return;
+                }
+                
+                if (!teamCode) {
+                    alert('팀을 선택해주세요.');
+                    document.getElementById('newPlayerTeamCode').focus();
+                    return;
+                }
+                
+                // 저장 확인
+                if (confirm('새 선수를 저장하시겠습니까?')) {
+                    saveNewPlayer(name, backNumber, position, batsOrder, batsThrows, teamCode);
+                }
+            });
+            
+            // 새 선수 초기화 버튼 클릭 이벤트
+            document.getElementById('clearNewPlayerBtn').addEventListener('click', function() {
+                if (confirm('입력된 내용을 초기화하시겠습니까?')) {
+                    clearNewPlayerForm();
+                }
+            });
+            
+            // Enter 키로 저장
+            document.getElementById('newPlayerRow').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('saveNewPlayerBtn').click();
+                }
+            });
         });
+        
+        function saveNewPlayer(name, backNumber, position, batsOrder, batsThrows, teamCode) {
+            // 저장 버튼 비활성화
+            const saveBtn = document.getElementById('saveNewPlayerBtn');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="bi bi-hourglass"></i>';
+            
+            // 폼 데이터 준비
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('backNumber', backNumber);
+            formData.append('position', position);
+            formData.append('batsOrder', batsOrder);
+            formData.append('batsThrows', batsThrows);
+            formData.append('teamCode', teamCode);
+            
+            // 서버로 POST 요청
+            fetch('/admin/players', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 성공시 페이지 새로고침
+                    window.location.reload();
+                } else {
+                    throw new Error('서버 오류가 발생했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('선수 저장 중 오류가 발생했습니다.');
+                
+                // 버튼 복원
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalText;
+            });
+        }
+        
+        function clearNewPlayerForm() {
+            document.getElementById('newPlayerName').value = '';
+            document.getElementById('newPlayerBackNumber').value = '';
+            document.getElementById('newPlayerPosition').value = '';
+            document.getElementById('newPlayerBatsOrder').value = '';
+            document.getElementById('newPlayerBatsThrows').value = '';
+            document.getElementById('newPlayerTeamCode').value = '';
+            
+            // 첫 번째 필드로 포커스 이동
+            document.getElementById('newPlayerName').focus();
+        }
     </script>
 </body>
 </html> 

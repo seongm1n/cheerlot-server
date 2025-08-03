@@ -15,7 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -102,10 +101,10 @@ public class LineupCrawlerService {
             return 0;
         }
 
-        clearTeamPlayers(homeTeam, awayTeam);
+        resetTeamPlayersBatsOrder(homeTeam, awayTeam);
 
-        List<Player> homePlayers = new ArrayList<>(saveLineup(homeLineup, homeTeam));
-        List<Player> awayPlayers = new ArrayList<>(saveLineup(awayLineup, awayTeam));
+        List<Player> homePlayers = new ArrayList<>(updateLineupBatsOrder(homeLineup, homeTeam));
+        List<Player> awayPlayers = new ArrayList<>(updateLineupBatsOrder(awayLineup, awayTeam));
         
         if (!homePlayers.isEmpty() && !awayPlayers.isEmpty()) {
             updateTeamInfo(homeTeam, awayTeam);
@@ -119,13 +118,13 @@ public class LineupCrawlerService {
         return homePlayers.size() + awayPlayers.size();
     }
     
-    private void clearTeamPlayers(Team homeTeam, Team awayTeam) {
-        log.info("홈팀({})과 원정팀({})의 기존 선수 데이터를 삭제합니다.", homeTeam.getName(), awayTeam.getName());
+    private void resetTeamPlayersBatsOrder(Team homeTeam, Team awayTeam) {
+        log.info("홈팀({})과 원정팀({})의 선수 타순을 초기화합니다.", homeTeam.getName(), awayTeam.getName());
         
-        playerRepository.deleteByTeam(homeTeam);
-        playerRepository.deleteByTeam(awayTeam);
+        playerRepository.updateBatsOrderToZeroByTeam(homeTeam);
+        playerRepository.updateBatsOrderToZeroByTeam(awayTeam);
         
-        log.info("팀별 선수 데이터 삭제 완료");
+        log.info("팀별 선수 타순 초기화 완료");
     }
     
     private boolean isSuccessResponse(JsonNode rootNode) {
@@ -140,24 +139,44 @@ public class LineupCrawlerService {
         return team.orElse(null);
     }
     
-    private List<Player> saveLineup(JsonNode lineupNode, Team team) {
-        List<Player> savedPlayers = new ArrayList<>();
+    private List<Player> updateLineupBatsOrder(JsonNode lineupNode, Team team) {
+        List<Player> updatedPlayers = new ArrayList<>();
         
         for (JsonNode playerNode : lineupNode) {
             if (playerNode.has("batorder")) {
-                Player player = createPlayerFromNode(playerNode, team);
-                player = playerRepository.save(player);
-                savedPlayers.add(player);
+                String playerName = playerNode.get("playerName").asText();
+                String batOrder = playerNode.get("batorder").asText();
                 
-                log.info("선수 저장: {} ({}번) - {} / {}", 
-                        player.getName(), 
-                        player.getBackNumber(), 
-                        player.getPosition(), 
-                        team.getName());
+                Optional<Player> existingPlayerOpt = playerRepository.findByNameAndTeam(playerName, team);
+                
+                if (existingPlayerOpt.isPresent()) {
+                    Player existingPlayer = existingPlayerOpt.get();
+                    existingPlayer.setBatsOrder(batOrder);
+                    
+                    // 추가 정보도 업데이트 (포지션이나 등번호가 바뀔 수 있음)
+                    existingPlayer.setPosition(playerNode.get("positionName").asText());
+                    if (playerNode.has("backnum")) {
+                        existingPlayer.setBackNumber(playerNode.get("backnum").asText());
+                    }
+                    if (playerNode.has("batsThrows")) {
+                        existingPlayer.setBatsThrows(playerNode.get("batsThrows").asText());
+                    }
+                    
+                    existingPlayer = playerRepository.save(existingPlayer);
+                    updatedPlayers.add(existingPlayer);
+                    
+                    log.info("선수 타순 업데이트: {} ({}번) - 타순: {} / {}", 
+                            existingPlayer.getName(), 
+                            existingPlayer.getBackNumber(), 
+                            batOrder,
+                            team.getName());
+                } else {
+                    log.error("팀 {}에서 선수 '{}'를 찾을 수 없습니다. 해당 선수는 라인업 업데이트에서 제외됩니다.", team.getName(), playerName);
+                }
             }
         }
         
-        return savedPlayers;
+        return updatedPlayers;
     }
 
     private boolean checkLineup(JsonNode lineupNode) {
@@ -167,24 +186,6 @@ public class LineupCrawlerService {
             }
         }
         return false;
-    }
-    
-    private Player createPlayerFromNode(JsonNode playerNode, Team team) {
-        String playerName = playerNode.get("playerName").asText();
-        String positionName = playerNode.get("positionName").asText();
-        String batsThrows = playerNode.get("batsThrows").asText();
-        String backNumber = playerNode.get("backnum").asText();
-        String batOrder = playerNode.has("batorder") ? playerNode.get("batorder").asText() : "";
-        
-        Player player = new Player();
-        player.setName(playerName);
-        player.setBackNumber(backNumber);
-        player.setPosition(positionName);
-        player.setBatsThrows(batsThrows);
-        player.setBatsOrder(batOrder);
-        player.setTeam(team);
-        
-        return player;
     }
     
     private String fetchPreviewData(String gameId) {

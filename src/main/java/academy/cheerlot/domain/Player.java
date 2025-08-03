@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "player")
 @Data
@@ -23,4 +25,7 @@ public class Player {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team")
     private Team team;
+
+    @OneToMany(mappedBy = "player", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<CheerSong> cheerSongs;
 }

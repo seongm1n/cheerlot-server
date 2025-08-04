@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "player")
 @Data
@@ -25,4 +27,7 @@ public class Player {
     @JoinColumn(name = "team")
     @JsonIgnore
     private Team team;
+
+    @OneToMany(mappedBy = "player", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<CheerSong> cheerSongs;
 }

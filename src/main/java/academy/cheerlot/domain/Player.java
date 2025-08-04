@@ -1,5 +1,6 @@
 package academy.cheerlot.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,5 +23,6 @@ public class Player {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team")
+    @JsonIgnore
     private Team team;
 }

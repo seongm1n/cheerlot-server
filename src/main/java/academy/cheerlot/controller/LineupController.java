@@ -3,6 +3,7 @@ package academy.cheerlot.controller;
 import academy.cheerlot.domain.Player;
 import academy.cheerlot.domain.Team;
 import academy.cheerlot.dto.LineupResponse;
+import academy.cheerlot.dto.PlayerDto;
 import academy.cheerlot.repository.PlayerRepository;
 import academy.cheerlot.repository.TeamRepository;
 import academy.cheerlot.service.LineupCrawlerService;
@@ -46,6 +47,9 @@ public class LineupController {
         
         Team team = teamOpt.get();
         List<Player> players = playerRepository.findByTeamOrderByBatsOrder(team);
+        List<PlayerDto> playerDtos = players.stream()
+                .map(PlayerDto::from)
+                .toList();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM월 dd일");
         String lastUpdated = team.getLastUpdated().format(formatter);
@@ -53,7 +57,7 @@ public class LineupController {
         LineupResponse response = new LineupResponse(
                 lastUpdated,
                 team.getLastOpponent(),
-                players
+                playerDtos
         );
         
         return ResponseEntity.ok(response);

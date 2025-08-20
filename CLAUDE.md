@@ -142,3 +142,7 @@ src/main/java/academy/cheerlot/
 - Logging configured to `logs/kbolineup.log`
 - JPA configured with `ddl-auto=update` for schema management
 - Domain entities use full package names for cross-domain references to maintain loose coupling
+
+### Code Style Guidelines
+- **No Comments**: This codebase follows a no-comments policy. Code should be self-documenting through clear naming and structure
+- Focus on expressive method names, variable names, and class design rather than explanatory comments

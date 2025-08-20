@@ -6,6 +6,7 @@ import academy.cheerlot.domain.team.domain.Team;
 import academy.cheerlot.domain.game.infrastructure.persistence.GameRepository;
 import academy.cheerlot.domain.player.infrastructure.persistence.PlayerRepository;
 import academy.cheerlot.domain.team.infrastructure.persistence.TeamRepository;
+import academy.cheerlot.domain.version.application.VersionService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class LineupCrawlerService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
+    private final VersionService versionService;
 
     public void crawlAllLineups() {
         log.info("모든 경기의 라인업 정보를 크롤링을 시작합니다.");
@@ -153,7 +155,6 @@ public class LineupCrawlerService {
                     Player existingPlayer = existingPlayerOpt.get();
                     existingPlayer.setBatsOrder(batOrder);
                     
-                    // 추가 정보도 업데이트 (포지션이나 등번호가 바뀔 수 있음)
                     existingPlayer.setPosition(playerNode.get("positionName").asText());
                     if (playerNode.has("backnum")) {
                         existingPlayer.setBackNumber(playerNode.get("backnum").asText());
@@ -234,6 +235,18 @@ public class LineupCrawlerService {
         awayTeam.setLastOpponent(homeTeam.getName());
         teamRepository.save(awayTeam);
         
+        updateTeamVersions(homeTeam, awayTeam);
+        
         log.info("팀 정보 업데이트 완료: {} vs {} ({})", homeTeam.getName(), awayTeam.getName(), today);
+    }
+    
+    private void updateTeamVersions(Team homeTeam, Team awayTeam) {
+        String gameDescription = String.format("%s vs %s 라인업 업데이트", homeTeam.getName(), awayTeam.getName());
+        
+        versionService.updateLineupVersion(homeTeam.getTeamCode(), gameDescription);
+        
+        versionService.updateLineupVersion(awayTeam.getTeamCode(), gameDescription);
+        
+        log.info("팀 버전 정보 업데이트 완료: {} 및 {}", homeTeam.getName(), awayTeam.getName());
     }
 }

@@ -4,6 +4,7 @@ import academy.cheerlot.domain.player.domain.Player;
 import academy.cheerlot.domain.team.domain.Team;
 import academy.cheerlot.domain.player.infrastructure.persistence.PlayerRepository;
 import academy.cheerlot.domain.team.infrastructure.persistence.TeamRepository;
+import academy.cheerlot.domain.version.application.RosterVersionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -23,6 +24,7 @@ public class AdminController {
 
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
+    private final RosterVersionService rosterVersionService;
 
     @GetMapping
     public String adminMain(Model model) {
@@ -102,6 +104,8 @@ public class AdminController {
             
             playerRepository.save(existingPlayer);
             
+            rosterVersionService.updateOnPlayerModified(existingPlayer.getTeam().getTeamCode(), existingPlayer.getName());
+            
             log.info("선수 정보 업데이트 완료: {} (ID: {})", existingPlayer.getName(), id);
             redirectAttributes.addFlashAttribute("success", "선수 정보가 성공적으로 업데이트되었습니다.");
             
@@ -119,8 +123,14 @@ public class AdminController {
             Optional<Player> playerOpt = playerRepository.findById(id);
             if (playerOpt.isPresent()) {
                 Player player = playerOpt.get();
+                String teamCode = player.getTeam().getTeamCode();
+                String playerName = player.getName();
+                
                 playerRepository.deleteById(id);
-                log.info("선수 삭제 완료: {} (ID: {})", player.getName(), id);
+                
+                rosterVersionService.updateOnPlayerDeleted(teamCode, playerName);
+                
+                log.info("선수 삭제 완료: {} (ID: {})", playerName, id);
                 redirectAttributes.addFlashAttribute("success", "선수가 성공적으로 삭제되었습니다.");
             } else {
                 redirectAttributes.addFlashAttribute("error", "삭제할 선수를 찾을 수 없습니다.");
@@ -157,6 +167,8 @@ public class AdminController {
             
             player.setTeam(teamOpt.get());
             playerRepository.save(player);
+            
+            rosterVersionService.updateOnPlayerAdded(teamCode, player.getName());
             
             log.info("새 선수 추가 완료: {}", player.getName());
             redirectAttributes.addFlashAttribute("success", "새 선수가 성공적으로 추가되었습니다.");

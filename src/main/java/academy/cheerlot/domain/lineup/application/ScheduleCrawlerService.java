@@ -46,10 +46,8 @@ public class ScheduleCrawlerService {
         }
         
         List<String> todayGameIds = extractTodayGameIds(scheduleJson);
-        log.info("오늘 총 {} 개의 게임 ID를 찾았습니다.", todayGameIds.size());
         
         List<String> filteredGameIds = filterKboGameIds(todayGameIds);
-        log.info("필터링 후 {} 개의 게임 ID가 남았습니다.", filteredGameIds.size());
         
         saveGameIds(filteredGameIds);
     }
@@ -57,16 +55,13 @@ public class ScheduleCrawlerService {
     private void clearExistingGames() {
         long gameCount = gameRepository.count();
         if (gameCount > 0) {
-            log.info("기존 게임 데이터 {}개를 삭제합니다.", gameCount);
             gameRepository.deleteAll();
-            log.info("기존 게임 데이터 삭제 완료");
         }
     }
 
     private String fetchScheduleData() {
         LocalDate today = LocalDate.now();
         String dateStr = today.format(DATE_FORMATTER);
-        log.info("네이버 스포츠 일정 API 호출: {}", dateStr);
 
         try {
             String url = buildScheduleUrl(dateStr);
@@ -79,7 +74,6 @@ public class ScheduleCrawlerService {
                     String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                log.info("API 호출 성공");
                 return response.getBody();
             } else {
                 log.error("API 요청 실패: 상태 코드 {}", response.getStatusCodeValue());
@@ -155,9 +149,7 @@ public class ScheduleCrawlerService {
             gameRepository.save(game);
             savedCount++;
             
-            log.info("게임 ID 저장: {}", gameId);
         }
         
-        log.info("총 {}개의 새로운 게임 ID가 저장되었습니다.", savedCount);
     }
 }

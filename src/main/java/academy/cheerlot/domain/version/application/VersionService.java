@@ -33,11 +33,9 @@ public class VersionService {
         if (existingVersion.isPresent()) {
             Version version = existingVersion.get();
             version.updateVersion(description);
-            log.info("팀 {} {}버전 업데이트: {} -> {}", teamCode, type, version.getVersionNumber(), description);
             return versionRepository.save(version);
         } else {
             Version newVersion = new Version(teamCode, type, description);
-            log.info("팀 {} {}버전 신규 생성: {}", teamCode, type, description);
             return versionRepository.save(newVersion);
         }
     }

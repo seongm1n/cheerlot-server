@@ -42,7 +42,6 @@ public class LineupCrawlerService {
     private final VersionService versionService;
 
     public void crawlAllLineups() {
-        log.info("모든 경기의 라인업 정보를 크롤링을 시작합니다.");
         
         List<Game> games = gameRepository.findAll();
         if (games.isEmpty()) {
@@ -58,18 +57,15 @@ public class LineupCrawlerService {
         
         for (Game game : games) {
             String gameId = game.getGameId();
-            log.info("게임 ID: {}의 라인업 정보를 크롤링합니다.", gameId);
             
             try {
                 int savedCount = processGame(gameId);
                 totalSaved += savedCount;
-                log.info("게임 ID: {}에서 {}명의 선수 정보가 저장되었습니다.", gameId, savedCount);
             } catch (Exception e) {
                 log.error("게임 ID: {}의 처리 중 예상치 못한 오류 발생: {}. 다음 게임으로 넘어갑니다.", gameId, e.getMessage());
             }
         }
         
-        log.info("총 {}개 게임의 라인업 정보 크롤링 완료. 총 {}명의 선수 정보가 저장되었습니다.", games.size(), totalSaved);
     }
     
     private int processGame(String gameId) throws IOException {
@@ -110,8 +106,6 @@ public class LineupCrawlerService {
         
         if (!homePlayers.isEmpty() && !awayPlayers.isEmpty()) {
             updateTeamInfo(homeTeam, awayTeam);
-            log.info("게임 ID: {}에서 홈팀 {}명, 원정팀 {}명 선수 저장 후 팀 정보 업데이트 완료", 
-                    gameId, homePlayers.size(), awayPlayers.size());
         } else {
             log.warn("게임 ID: {}에서 선수 저장 실패 - 홈팀: {}명, 원정팀: {}명. 팀 정보 업데이트 건너뜀", 
                     gameId, homePlayers.size(), awayPlayers.size());
@@ -121,12 +115,10 @@ public class LineupCrawlerService {
     }
     
     private void resetTeamPlayersBatsOrder(Team homeTeam, Team awayTeam) {
-        log.info("홈팀({})과 원정팀({})의 선수 타순을 초기화합니다.", homeTeam.getName(), awayTeam.getName());
         
         playerRepository.updateBatsOrderToZeroByTeam(homeTeam);
         playerRepository.updateBatsOrderToZeroByTeam(awayTeam);
         
-        log.info("팀별 선수 타순 초기화 완료");
     }
     
     private boolean isSuccessResponse(JsonNode rootNode) {
@@ -166,11 +158,6 @@ public class LineupCrawlerService {
                     existingPlayer = playerRepository.save(existingPlayer);
                     updatedPlayers.add(existingPlayer);
                     
-                    log.info("선수 타순 업데이트: {} ({}번) - 타순: {} / {}", 
-                            existingPlayer.getName(), 
-                            existingPlayer.getBackNumber(), 
-                            batOrder,
-                            team.getName());
                 } else {
                     log.error("팀 {}에서 선수 '{}'를 찾을 수 없습니다. 해당 선수는 라인업 업데이트에서 제외됩니다.", team.getName(), playerName);
                 }
@@ -190,7 +177,6 @@ public class LineupCrawlerService {
     }
     
     private String fetchPreviewData(String gameId) {
-        log.info("게임 ID: {}의 프리뷰 정보를 요청합니다.", gameId);
         
         try {
             String url = PREVIEW_URL.replace("{game_id}", gameId);
@@ -203,7 +189,6 @@ public class LineupCrawlerService {
                     String.class);
             
             if (response.getStatusCode().is2xxSuccessful()) {
-                log.info("프리뷰 API 호출 성공");
                 return response.getBody();
             } else {
                 log.error("프리뷰 API 요청 실패: 상태 코드 {}", response.getStatusCodeValue());
@@ -237,7 +222,6 @@ public class LineupCrawlerService {
         
         updateTeamVersions(homeTeam, awayTeam);
         
-        log.info("팀 정보 업데이트 완료: {} vs {} ({})", homeTeam.getName(), awayTeam.getName(), today);
     }
     
     private void updateTeamVersions(Team homeTeam, Team awayTeam) {
@@ -247,6 +231,5 @@ public class LineupCrawlerService {
         
         versionService.updateLineupVersion(awayTeam.getTeamCode(), gameDescription);
         
-        log.info("팀 버전 정보 업데이트 완료: {} 및 {}", homeTeam.getName(), awayTeam.getName());
     }
 }

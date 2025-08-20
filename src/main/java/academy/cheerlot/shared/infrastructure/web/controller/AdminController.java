@@ -106,7 +106,6 @@ public class AdminController {
             
             rosterVersionService.updateOnPlayerModified(existingPlayer.getTeam().getTeamCode(), existingPlayer.getName());
             
-            log.info("선수 정보 업데이트 완료: {} (ID: {})", existingPlayer.getName(), id);
             redirectAttributes.addFlashAttribute("success", "선수 정보가 성공적으로 업데이트되었습니다.");
             
         } catch (Exception e) {
@@ -130,7 +129,6 @@ public class AdminController {
                 
                 rosterVersionService.updateOnPlayerDeleted(teamCode, playerName);
                 
-                log.info("선수 삭제 완료: {} (ID: {})", playerName, id);
                 redirectAttributes.addFlashAttribute("success", "선수가 성공적으로 삭제되었습니다.");
             } else {
                 redirectAttributes.addFlashAttribute("error", "삭제할 선수를 찾을 수 없습니다.");
@@ -170,7 +168,6 @@ public class AdminController {
             
             rosterVersionService.updateOnPlayerAdded(teamCode, player.getName());
             
-            log.info("새 선수 추가 완료: {}", player.getName());
             redirectAttributes.addFlashAttribute("success", "새 선수가 성공적으로 추가되었습니다.");
             
         } catch (Exception e) {
@@ -227,7 +224,6 @@ public class AdminController {
             
             teamRepository.save(team);
             
-            log.info("팀 정보 업데이트 완료: {} (코드: {})", team.getName(), teamCode);
             redirectAttributes.addFlashAttribute("success", "팀 정보가 성공적으로 업데이트되었습니다.");
             
         } catch (Exception e) {

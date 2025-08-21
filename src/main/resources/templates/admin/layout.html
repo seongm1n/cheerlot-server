@@ -1,131 +1,128 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head th:fragment="head">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title} ?: '관리자 페이지'">관리자 페이지</title>
-    
-    <!-- Bootstrap CSS -->
+    <title th:text="${title} + ' - KBO 치어롯 관리자'">KBO 치어롯 관리자</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    
     <style>
         .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
             min-height: 100vh;
             background-color: #f8f9fa;
-            border-right: 1px solid #dee2e6;
         }
-        
         .nav-link {
-            color: #495057;
-            border-radius: 0.375rem;
-            margin: 0.25rem 0;
+            color: #ecf0f1 !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            transition: all 0.3s ease;
         }
-        
-        .nav-link:hover {
-            background-color: #e9ecef;
-            color: #212529;
+        .nav-link:hover, .nav-link.active {
+            background-color: #3498db;
+            color: white !important;
+            transform: translateX(5px);
         }
-        
-        .nav-link.active {
-            background-color: #0d6efd;
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .brand {
+            padding: 20px;
+            border-bottom: 1px solid #34495e;
+            text-align: center;
+        }
+        .brand h4 {
+            color: #3498db;
+            font-weight: bold;
+            margin: 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background: linear-gradient(45deg, #3498db, #2980b9);
             color: white;
+            border: none;
+            font-weight: 600;
         }
-        
-        .main-content {
-            padding: 2rem;
+        .badge {
+            border-radius: 20px;
+            padding: 8px 12px;
         }
-        
-        .page-header {
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-        }
-        
-        .alert {
-            margin-bottom: 1.5rem;
-        }
-        
-        .table th {
-            background-color: #f8f9fa;
-            border-top: none;
-        }
-        
-        .btn-group-sm .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
-
 <body>
-    <div class="container-fluid" th:fragment="layout">
-        <div class="row">
-            <!-- 사이드바 -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-                        <span>관리자 메뉴</span>
-                    </h6>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/admin}" th:classappend="${#request.requestURI == '/admin' ? 'active' : ''}">
-                                <i class="bi bi-house"></i>
-                                대시보드
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/admin/players}" th:classappend="${#strings.contains(#request.requestURI, '/admin/players') ? 'active' : ''}">
-                                <i class="bi bi-people"></i>
-                                선수 관리
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-            
-            <!-- 메인 콘텐츠 -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <!-- 페이지 헤더 -->
-                <div class="page-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h1 class="h2" th:text="${pageTitle} ?: '관리자 페이지'">관리자 페이지</h1>
-                        <div th:if="${showBackButton}">
-                            <a th:href="${backUrl}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left"></i> 뒤로가기
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 알림 메시지 -->
-                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle"></i>
-                    <span th:text="${success}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                
-                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    <span th:text="${error}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                
-                <!-- 페이지 컨텐츠 -->
-                <div th:fragment="content">
-                    <!-- 여기에 페이지별 콘텐츠가 들어갑니다 -->
-                </div>
-            </main>
+    <div class="sidebar">
+        <div class="brand">
+            <h4><i class="bi bi-trophy"></i> KBO 치어롯</h4>
+            <small class="text-muted">관리자 페이지</small>
         </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" th:classappend="${#httpServletRequest.requestURI == '/admin' or #httpServletRequest.requestURI == '/admin/' ? 'active' : ''}" href="/admin">
+                <i class="bi bi-speedometer2"></i> 대시보드
+            </a>
+            <a class="nav-link" th:classappend="${#httpServletRequest.requestURI.startsWith('/admin/players') ? 'active' : ''}" href="/admin/players">
+                <i class="bi bi-people"></i> 전체 선수 명단
+            </a>
+            <a class="nav-link" th:classappend="${#httpServletRequest.requestURI.startsWith('/admin/lineup') ? 'active' : ''}" href="/admin/lineup">
+                <i class="bi bi-list-ol"></i> 선발 라인업
+            </a>
+            <a class="nav-link" th:classappend="${#httpServletRequest.requestURI.startsWith('/admin/cheersongs') ? 'active' : ''}" href="/admin/cheersongs">
+                <i class="bi bi-music-note"></i> 응원가 관리
+            </a>
+        </nav>
     </div>
-    
-    <!-- Bootstrap JS -->
+
+    <div class="main-content">
+        <div th:replace="${content}">Content will be inserted here</div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- 추가 스크립트 -->
-    <div th:fragment="scripts">
-        <!-- 여기에 페이지별 스크립트가 들어갑니다 -->
-    </div>
+    <script th:if="${script}" th:utext="${script}"></script>
 </body>
-</html> 
+</html>

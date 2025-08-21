@@ -1,236 +1,163 @@
 package academy.cheerlot.shared.infrastructure.web.controller;
 
 import academy.cheerlot.domain.player.domain.Player;
-import academy.cheerlot.domain.team.domain.Team;
 import academy.cheerlot.domain.player.infrastructure.persistence.PlayerRepository;
+import academy.cheerlot.domain.team.domain.Team;
 import academy.cheerlot.domain.team.infrastructure.persistence.TeamRepository;
-import academy.cheerlot.domain.version.application.RosterVersionService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
-@Slf4j
 public class AdminController {
 
-    private final PlayerRepository playerRepository;
-    private final TeamRepository teamRepository;
-    private final RosterVersionService rosterVersionService;
+    @Autowired
+    private PlayerRepository playerRepository;
 
-    @GetMapping
-    public String adminMain(Model model) {
-        model.addAttribute("pageTitle", "관리자 대시보드");
-        return "admin/main";
+    @Autowired
+    private TeamRepository teamRepository;
+
+    @GetMapping("")
+    public String dashboard(Model model) {
+        List<Team> teams = teamRepository.findAll();
+        long totalPlayers = playerRepository.count();
+        long playersWithCheersongs = getPlayersWithCheersongs().size();
+        
+        model.addAttribute("teams", teams);
+        model.addAttribute("totalPlayers", totalPlayers);
+        model.addAttribute("playersWithCheersongs", playersWithCheersongs);
+        
+        return "admin/dashboard";
     }
 
     @GetMapping("/players")
-    public String listPlayers(@RequestParam(value = "teamCode", required = false) String teamCode, Model model) {
-        List<Team> allTeams = teamRepository.findAll();
-        model.addAttribute("teams", allTeams);
-        
+    public String players(@RequestParam(required = false) String teamCode, Model model) {
         List<Player> players;
+        List<Team> teams = teamRepository.findAll();
+        
         if (teamCode != null && !teamCode.isEmpty()) {
-            Optional<Team> team = teamRepository.findById(teamCode);
-            if (team.isPresent()) {
-                players = playerRepository.findByTeamOrderByBatsOrder(team.get());
-                model.addAttribute("selectedTeam", team.get());
-            } else {
-                players = playerRepository.findAll();
-            }
+            Team team = teamRepository.findById(teamCode).orElse(null);
+            players = team != null ? playerRepository.findByTeamOrderByBatsOrder(team) : new ArrayList<>();
         } else {
             players = playerRepository.findAll();
         }
         
+        Map<String, String> cheerSongFiles = getCheersongFileMap();
+        
         model.addAttribute("players", players);
-        model.addAttribute("selectedTeamCode", teamCode);
-        model.addAttribute("pageTitle", "선수 관리");
+        model.addAttribute("teams", teams);
+        model.addAttribute("selectedTeam", teamCode);
+        model.addAttribute("cheerSongFiles", cheerSongFiles);
         
         return "admin/players";
     }
 
-    @GetMapping("/players/{id}/edit")
-    public String editPlayerForm(@PathVariable Long id, Model model) {
-        Optional<Player> playerOpt = playerRepository.findById(id);
-        if (playerOpt.isEmpty()) {
-            return "redirect:/admin/players";
-        }
-        
-        Player player = playerOpt.get();
+    @GetMapping("/lineup")
+    public String lineup(@RequestParam(required = false) String teamCode, Model model) {
         List<Team> teams = teamRepository.findAll();
+        List<Player> startingLineup = new ArrayList<>();
+        Team selectedTeam = null;
         
-        model.addAttribute("player", player);
-        model.addAttribute("teams", teams);
-        model.addAttribute("pageTitle", "선수 수정 - " + player.getName());
-        model.addAttribute("showBackButton", true);
-        model.addAttribute("backUrl", "/admin/players");
-        
-        return "admin/edit-player";
-    }
-
-    @PostMapping("/players/{id}")
-    public String updatePlayer(@PathVariable Long id, 
-                             @ModelAttribute Player player,
-                             @RequestParam String teamCode,
-                             RedirectAttributes redirectAttributes) {
-        try {
-            Optional<Player> existingPlayerOpt = playerRepository.findById(id);
-            if (existingPlayerOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "선수를 찾을 수 없습니다.");
-                return "redirect:/admin/players";
+        if (teamCode != null && !teamCode.isEmpty()) {
+            selectedTeam = teamRepository.findById(teamCode).orElse(null);
+            if (selectedTeam != null) {
+                startingLineup = playerRepository.findByTeamOrderByBatsOrder(selectedTeam)
+                    .stream()
+                    .filter(player -> player.getBatsOrder() != null && 
+                                    !player.getBatsOrder().equals("0") && 
+                                    !player.getBatsOrder().trim().isEmpty())
+                    .sorted((p1, p2) -> {
+                        try {
+                            return Integer.compare(Integer.parseInt(p1.getBatsOrder()), 
+                                                 Integer.parseInt(p2.getBatsOrder()));
+                        } catch (NumberFormatException e) {
+                            return p1.getBatsOrder().compareTo(p2.getBatsOrder());
+                        }
+                    })
+                    .collect(Collectors.toList());
             }
-            
-            Optional<Team> teamOpt = teamRepository.findById(teamCode);
-            if (teamOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "팀을 찾을 수 없습니다.");
-                return "redirect:/admin/players/" + id + "/edit";
-            }
-            
-            Player existingPlayer = existingPlayerOpt.get();
-            existingPlayer.setName(player.getName());
-            existingPlayer.setBackNumber(player.getBackNumber());
-            existingPlayer.setPosition(player.getPosition());
-            existingPlayer.setBatsThrows(player.getBatsThrows());
-            existingPlayer.setBatsOrder(player.getBatsOrder());
-            existingPlayer.setTeam(teamOpt.get());
-            
-            playerRepository.save(existingPlayer);
-            
-            rosterVersionService.updateOnPlayerModified(existingPlayer.getTeam().getTeamCode(), existingPlayer.getName());
-            
-            redirectAttributes.addFlashAttribute("success", "선수 정보가 성공적으로 업데이트되었습니다.");
-            
-        } catch (Exception e) {
-            log.error("선수 정보 업데이트 중 오류 발생: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "선수 정보 업데이트 중 오류가 발생했습니다.");
         }
         
-        return "redirect:/admin/players";
+        model.addAttribute("teams", teams);
+        model.addAttribute("selectedTeam", teamCode);
+        model.addAttribute("selectedTeamName", selectedTeam != null ? selectedTeam.getName() : null);
+        model.addAttribute("startingLineup", startingLineup);
+        
+        return "admin/lineup";
     }
 
-    @PostMapping("/players/{id}/delete")
-    public String deletePlayer(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    @GetMapping("/cheersongs")
+    public String cheersongs(Model model) {
+        List<Player> playersWithCheersongs = getPlayersWithCheersongs();
+        Map<String, String> cheerSongFiles = getCheersongFileMap();
+        
+        model.addAttribute("playersWithCheersongs", playersWithCheersongs);
+        model.addAttribute("cheerSongFiles", cheerSongFiles);
+        
+        return "admin/cheersongs";
+    }
+
+    @PostMapping("/player/{id}/batting-order")
+    @ResponseBody
+    public Map<String, String> updateBattingOrder(@PathVariable Long id, @RequestParam String battingOrder) {
+        Map<String, String> response = new HashMap<>();
         try {
-            Optional<Player> playerOpt = playerRepository.findById(id);
-            if (playerOpt.isPresent()) {
-                Player player = playerOpt.get();
-                String teamCode = player.getTeam().getTeamCode();
-                String playerName = player.getName();
-                
-                playerRepository.deleteById(id);
-                
-                rosterVersionService.updateOnPlayerDeleted(teamCode, playerName);
-                
-                redirectAttributes.addFlashAttribute("success", "선수가 성공적으로 삭제되었습니다.");
+            Player player = playerRepository.findById(id).orElse(null);
+            if (player != null) {
+                player.setBatsOrder(battingOrder);
+                playerRepository.save(player);
+                response.put("status", "success");
+                response.put("message", "타순이 성공적으로 업데이트되었습니다.");
             } else {
-                redirectAttributes.addFlashAttribute("error", "삭제할 선수를 찾을 수 없습니다.");
+                response.put("status", "error");
+                response.put("message", "선수를 찾을 수 없습니다.");
             }
         } catch (Exception e) {
-            log.error("선수 삭제 중 오류 발생: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "선수 삭제 중 오류가 발생했습니다.");
+            response.put("status", "error");
+            response.put("message", "업데이트 중 오류가 발생했습니다: " + e.getMessage());
         }
-        
-        return "redirect:/admin/players";
+        return response;
     }
 
-    @GetMapping("/players/new")
-    public String newPlayerForm(Model model) {
-        List<Team> teams = teamRepository.findAll();
-        model.addAttribute("player", new Player());
-        model.addAttribute("teams", teams);
-        model.addAttribute("pageTitle", "새 선수 추가");
-        model.addAttribute("showBackButton", true);
-        model.addAttribute("backUrl", "/admin/players");
-        return "admin/new-player";
+    private List<Player> getPlayersWithCheersongs() {
+        Map<String, String> cheerSongFiles = getCheersongFileMap();
+        return playerRepository.findAll().stream()
+            .filter(player -> {
+                String teamCode = player.getTeam().getTeamCode().toLowerCase();
+                String backNumber = player.getBackNumber();
+                String expectedFileName = teamCode + backNumber + ".mp3";
+                return cheerSongFiles.containsKey(expectedFileName);
+            })
+            .collect(Collectors.toList());
     }
 
-    @PostMapping("/players")
-    public String createPlayer(@ModelAttribute Player player,
-                             @RequestParam String teamCode,
-                             RedirectAttributes redirectAttributes) {
+    private Map<String, String> getCheersongFileMap() {
+        Map<String, String> fileMap = new HashMap<>();
         try {
-            Optional<Team> teamOpt = teamRepository.findById(teamCode);
-            if (teamOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "팀을 찾을 수 없습니다.");
-                return "redirect:/admin/players/new";
+            ClassPathResource resource = new ClassPathResource("cheersongs/audio");
+            if (resource.exists()) {
+                Path audioPath = Paths.get(resource.getURI());
+                Files.list(audioPath)
+                    .filter(path -> path.toString().toLowerCase().endsWith(".mp3") || 
+                                   path.toString().toLowerCase().endsWith(".mp4"))
+                    .forEach(path -> {
+                        String fileName = path.getFileName().toString();
+                        fileMap.put(fileName, fileName);
+                    });
             }
-            
-            player.setTeam(teamOpt.get());
-            playerRepository.save(player);
-            
-            rosterVersionService.updateOnPlayerAdded(teamCode, player.getName());
-            
-            redirectAttributes.addFlashAttribute("success", "새 선수가 성공적으로 추가되었습니다.");
-            
-        } catch (Exception e) {
-            log.error("선수 추가 중 오류 발생: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "선수 추가 중 오류가 발생했습니다.");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        
-        return "redirect:/admin/players";
+        return fileMap;
     }
-
-    @GetMapping("/teams")
-    public String listTeams(Model model) {
-        List<Team> teams = teamRepository.findAll();
-        
-        for (Team team : teams) {
-            int playerCount = playerRepository.findByTeamOrderByBatsOrder(team).size();
-            team.setPlayerCount(playerCount);
-        }
-        
-        model.addAttribute("teams", teams);
-        model.addAttribute("pageTitle", "팀 관리");
-        
-        return "admin/teams";
-    }
-
-    @PostMapping("/teams/{teamCode}/update")
-    public String updateTeam(@PathVariable String teamCode,
-                           @RequestParam(required = false) String lastOpponent,
-                           @RequestParam(required = false) String lastUpdated,
-                           RedirectAttributes redirectAttributes) {
-        try {
-            Optional<Team> teamOpt = teamRepository.findById(teamCode);
-            if (teamOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "팀을 찾을 수 없습니다.");
-                return "redirect:/admin/teams";
-            }
-            
-            Team team = teamOpt.get();
-            
-            if (lastOpponent != null && !lastOpponent.trim().isEmpty()) {
-                team.setLastOpponent(lastOpponent.trim());
-            }
-            
-            if (lastUpdated != null && !lastUpdated.trim().isEmpty()) {
-                try {
-                    team.setLastUpdated(LocalDate.parse(lastUpdated));
-                } catch (Exception e) {
-                    redirectAttributes.addFlashAttribute("error", "날짜 형식이 올바르지 않습니다. (YYYY-MM-DD)");
-                    return "redirect:/admin/teams";
-                }
-            } else {
-                team.setLastUpdated(LocalDate.now());
-            }
-            
-            teamRepository.save(team);
-            
-            redirectAttributes.addFlashAttribute("success", "팀 정보가 성공적으로 업데이트되었습니다.");
-            
-        } catch (Exception e) {
-            log.error("팀 정보 업데이트 중 오류 발생: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "팀 정보 업데이트 중 오류가 발생했습니다.");
-        }
-        
-        return "redirect:/admin/teams";
-    }
-} 
+}

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>선발 라인업 - CheerLot 관리자</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .nav-link {
+            color: #ecf0f1 !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #3498db;
+            color: white !important;
+            transform: translateX(5px);
+        }
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .brand {
+            padding: 20px;
+            border-bottom: 1px solid #34495e;
+            text-align: center;
+        }
+        .brand h4 {
+            color: #3498db;
+            font-weight: bold;
+            margin: 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .lineup-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: 15px;
+            transition: transform 0.2s ease;
+        }
+        .lineup-card:hover {
+            transform: translateY(-3px);
+        }
+        .batting-order {
+            font-size: 2rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .position-badge {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.9rem;
+        }
+        .no-lineup {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .no-lineup i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">
+            <h4><i class="bi bi-trophy"></i> CheerLot</h4>
+            <small class="text-muted">관리자 페이지</small>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="/admin">
+                <i class="bi bi-speedometer2"></i> 대시보드
+            </a>
+            <a class="nav-link" href="/admin/players">
+                <i class="bi bi-people"></i> 전체 선수 명단
+            </a>
+            <a class="nav-link active" href="/admin/lineup">
+                <i class="bi bi-list-ol"></i> 선발 라인업
+            </a>
+            <a class="nav-link" href="/admin/cheersongs">
+                <i class="bi bi-music-note"></i> 응원가 관리
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-list-ol"></i> 선발 라인업</h1>
+            <span class="badge bg-primary" th:if="${selectedTeam}" th:text="'선발: ' + ${#lists.size(startingLineup)} + '명'">선발: 0명</span>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" action="/admin/lineup">
+                    <div class="row align-items-end">
+                        <div class="col-md-4">
+                            <label for="teamCode" class="form-label">팀 선택</label>
+                            <select class="form-select" id="teamCode" name="teamCode" onchange="this.form.submit()">
+                                <option value="">팀을 선택하세요</option>
+                                <option th:each="team : ${teams}" 
+                                        th:value="${team.teamCode}" 
+                                        th:text="${team.name}"
+                                        th:selected="${team.teamCode == selectedTeam}">팀명</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> 조회
+                            </button>
+                            <a href="/admin/lineup" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> 초기화
+                            </a>
+                        </div>
+                        <div class="col-md-4 text-end" th:if="${selectedTeam}">
+                            <a th:href="@{/admin/players(teamCode=${selectedTeam})}" class="btn btn-outline-info">
+                                <i class="bi bi-people"></i> 전체 선수 보기
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div th:if="${selectedTeam != null and not #lists.isEmpty(startingLineup)}">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-trophy"></i> 
+                        <span th:text="${selectedTeamName != null ? selectedTeamName + ' 선발 라인업' : '선발 라인업'}">선발 라인업</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-8 col-12 mx-auto">
+                            <div th:each="player, iterStat : ${startingLineup}" class="lineup-card card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-2">
+                                            <div class="batting-order" th:text="${player.batsOrder}">1</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="player-name" th:text="${player.name}">선수명</div>
+                                            <div class="text-light">
+                                                <small>등번호: <span th:text="${player.backNumber}">00</span></small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <div class="position-badge" th:text="${player.position}">포지션</div>
+                                            <div class="text-light mt-1">
+                                                <small th:text="${player.batsThrows}">타석/투구</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${selectedTeam != null and #lists.isEmpty(startingLineup)}" class="card">
+            <div class="card-body">
+                <div class="no-lineup">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <h4>등록된 선발 라인업이 없습니다</h4>
+                    <p class="text-muted">선택한 팀에 설정된 선발 라인업이 없습니다.<br>선수 관리 페이지에서 타순을 설정해주세요.</p>
+                    <a th:href="@{/admin/players(teamCode=${selectedTeam})}" class="btn btn-primary">
+                        <i class="bi bi-people"></i> 선수 관리로 이동
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div th:unless="${selectedTeam != null}" class="card">
+            <div class="card-body">
+                <div class="no-lineup">
+                    <i class="bi bi-list-ol"></i>
+                    <h4>팀을 선택해주세요</h4>
+                    <p class="text-muted">선발 라인업을 확인할 팀을 위에서 선택해주세요.</p>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${selectedTeam != null}" class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-info-circle"></i> 라인업 관리 안내</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="bi bi-lightbulb"></i> 타순 설정 방법</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-arrow-right"></i> 전체 선수 명단에서 타순 입력</li>
+                                    <li><i class="bi bi-arrow-right"></i> 1~9번: 선발 라인업</li>
+                                    <li><i class="bi bi-arrow-right"></i> 0번: 후보 선수</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="bi bi-tools"></i> 빠른 작업</h6>
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/admin/players(teamCode=${selectedTeam})}" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-pencil"></i> 타순 편집하기
+                                    </a>
+                                    <a href="/api/crawl" class="btn btn-outline-warning btn-sm" target="_blank">
+                                        <i class="bi bi-arrow-clockwise"></i> 최신 데이터 가져오기
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

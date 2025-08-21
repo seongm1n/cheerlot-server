@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대시보드 - CheerLot 관리자</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .nav-link {
+            color: #ecf0f1 !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #3498db;
+            color: white !important;
+            transform: translateX(5px);
+        }
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .brand {
+            padding: 20px;
+            border-bottom: 1px solid #34495e;
+            text-align: center;
+        }
+        .brand h4 {
+            color: #3498db;
+            font-weight: bold;
+            margin: 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .stat-card.players {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .stat-card.cheersongs {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .team-card {
+            border-left: 4px solid #3498db;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">
+            <h4><i class="bi bi-trophy"></i> CheerLot</h4>
+            <small class="text-muted">관리자 페이지</small>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link active" href="/admin">
+                <i class="bi bi-speedometer2"></i> 대시보드
+            </a>
+            <a class="nav-link" href="/admin/players">
+                <i class="bi bi-people"></i> 전체 선수 명단
+            </a>
+            <a class="nav-link" href="/admin/lineup">
+                <i class="bi bi-list-ol"></i> 선발 라인업
+            </a>
+            <a class="nav-link" href="/admin/cheersongs">
+                <i class="bi bi-music-note"></i> 응원가 관리
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-speedometer2"></i> 대시보드</h1>
+            <span class="badge bg-primary">CheerLot 관리자</span>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-building display-4 mb-3"></i>
+                        <div class="stat-number" th:text="${#lists.size(teams)}">0</div>
+                        <h5>등록된 팀</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card stat-card players h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people display-4 mb-3"></i>
+                        <div class="stat-number" th:text="${totalPlayers}">0</div>
+                        <h5>전체 선수</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card stat-card cheersongs h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-music-note display-4 mb-3"></i>
+                        <div class="stat-number" th:text="${playersWithCheersongs}">0</div>
+                        <h5>응원가 보유 선수</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-building"></i> 팀별 현황</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 col-lg-4 mb-3" th:each="team : ${teams}">
+                                <div class="card team-card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="card-title mb-0" th:text="${team.name}">팀명</h6>
+                                            <span class="badge bg-secondary" th:text="${team.teamCode}">팀코드</span>
+                                        </div>
+                                        <p class="text-muted small mb-2">
+                                            <i class="bi bi-calendar"></i> 최근 업데이트: 
+                                            <span th:text="${team.lastUpdated != null ? #temporals.format(team.lastUpdated, 'MM-dd') : 'N/A'}">N/A</span>
+                                        </p>
+                                        <div class="d-flex justify-content-between">
+                                            <a th:href="@{/admin/players(teamCode=${team.teamCode})}" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-people"></i> 선수 목록
+                                            </a>
+                                            <a th:href="@{/admin/lineup(teamCode=${team.teamCode})}" class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-list-ol"></i> 라인업
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-tools"></i> 빠른 작업</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <a href="/admin/players" class="btn btn-primary w-100">
+                                    <i class="bi bi-people"></i> 전체 선수 관리
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="/admin/lineup" class="btn btn-success w-100">
+                                    <i class="bi bi-list-ol"></i> 라인업 관리
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="/admin/cheersongs" class="btn btn-info w-100">
+                                    <i class="bi bi-music-note"></i> 응원가 관리
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="/api/crawl" class="btn btn-warning w-100" target="_blank">
+                                    <i class="bi bi-arrow-clockwise"></i> 데이터 갱신
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>응원가 관리 - CheerLot 관리자</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .nav-link {
+            color: #ecf0f1 !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #3498db;
+            color: white !important;
+            transform: translateX(5px);
+        }
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .brand {
+            padding: 20px;
+            border-bottom: 1px solid #34495e;
+            text-align: center;
+        }
+        .brand h4 {
+            color: #3498db;
+            font-weight: bold;
+            margin: 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .player-card {
+            transition: transform 0.2s ease;
+            margin-bottom: 15px;
+        }
+        .player-card:hover {
+            transform: translateY(-3px);
+        }
+        .team-badge {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+        }
+        .player-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .audio-controls {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin-top: 10px;
+        }
+        .play-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .play-btn:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            transform: scale(1.1);
+        }
+        .file-info {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .no-cheersongs {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        .no-cheersongs i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">
+            <h4><i class="bi bi-trophy"></i> CheerLot</h4>
+            <small class="text-muted">관리자 페이지</small>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="/admin">
+                <i class="bi bi-speedometer2"></i> 대시보드
+            </a>
+            <a class="nav-link" href="/admin/players">
+                <i class="bi bi-people"></i> 전체 선수 명단
+            </a>
+            <a class="nav-link" href="/admin/lineup">
+                <i class="bi bi-list-ol"></i> 선발 라인업
+            </a>
+            <a class="nav-link active" href="/admin/cheersongs">
+                <i class="bi bi-music-note"></i> 응원가 관리
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-music-note"></i> 응원가 관리</h1>
+            <span class="badge bg-primary" th:text="'보유: ' + ${#lists.size(playersWithCheersongs)} + '명'">보유: 0명</span>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card stats-card">
+                    <div class="card-body text-center">
+                        <i class="bi bi-music-note-beamed display-4 mb-3"></i>
+                        <h3 th:text="${#lists.size(playersWithCheersongs)}">0</h3>
+                        <p class="mb-0">응원가 보유 선수</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-file-earmark-music display-4 mb-3"></i>
+                        <h3 th:text="${#maps.size(cheerSongFiles)}">0</h3>
+                        <p class="mb-0">전체 음원 파일</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-percent display-4 mb-3"></i>
+                        <h3 th:text="${#lists.size(playersWithCheersongs) > 0 ? #numbers.formatDecimal((#lists.size(playersWithCheersongs) * 100.0 / #maps.size(cheerSongFiles)), 0, 1) + '%' : '0%'}">0%</h3>
+                        <p class="mb-0">매칭 비율</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${not #lists.isEmpty(playersWithCheersongs)}">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-music-note-list"></i> 응원가 보유 선수 목록</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-12 mb-3" th:each="player : ${playersWithCheersongs}">
+                            <div class="card player-card h-100">
+                                <div class="player-info">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-1" th:text="${player.name}">선수명</h6>
+                                            <div class="small">
+                                                <span class="team-badge badge" th:text="${player.team.teamCode}">팀</span>
+                                                <span class="ms-2">등번호: <span th:text="${player.backNumber}">00</span></span>
+                                            </div>
+                                        </div>
+                                        <span class="badge bg-light text-dark" th:text="${player.position}">포지션</span>
+                                    </div>
+                                    
+                                    <div class="audio-controls d-flex justify-content-between align-items-center">
+                                        <div class="file-info">
+                                            <i class="bi bi-file-earmark-music"></i>
+                                            <span th:text="${player.team.teamCode.toLowerCase() + player.backNumber + '.mp3'}">파일명</span>
+                                        </div>
+                                        <button class="play-btn btn play-cheersong-btn" 
+                                                th:data-filename="${player.team.teamCode.toLowerCase() + player.backNumber + '.mp3'}"
+                                                th:data-player-name="${player.name}">
+                                            <i class="bi bi-play-fill"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(playersWithCheersongs)}" class="card">
+            <div class="card-body">
+                <div class="no-cheersongs">
+                    <i class="bi bi-music-note"></i>
+                    <h4>응원가 파일이 없습니다</h4>
+                    <p class="text-muted">현재 등록된 선수와 매칭되는 응원가 파일이 없습니다.<br>
+                        파일명 형식: <code>팀코드등번호.mp3</code> (예: hh23.mp3)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-info-circle"></i> 응원가 파일 관리 안내</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="bi bi-folder"></i> 파일 위치</h6>
+                                <p class="text-muted small">
+                                    <code>/src/main/resources/cheersongs/audio/</code><br>
+                                    서버 재시작 후 새 파일이 반영됩니다.
+                                </p>
+                                
+                                <h6><i class="bi bi-file-text"></i> 파일명 규칙</h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li><i class="bi bi-arrow-right"></i> 형식: <code>팀코드등번호.mp3</code></li>
+                                    <li><i class="bi bi-arrow-right"></i> 예시: <code>hh23.mp3</code> (한화 23번)</li>
+                                    <li><i class="bi bi-arrow-right"></i> 팀코드: 소문자로 입력</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="bi bi-music-note"></i> 지원 형식</h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li><i class="bi bi-check-circle text-success"></i> MP3 파일</li>
+                                    <li><i class="bi bi-check-circle text-success"></i> MP4 파일 (오디오)</li>
+                                </ul>
+                                
+                                <h6><i class="bi bi-tools"></i> 빠른 작업</h6>
+                                <div class="d-grid gap-2">
+                                    <a href="/admin/players" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-people"></i> 전체 선수 확인
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="audioToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="bi bi-music-note me-2"></i>
+                <strong class="me-auto" id="toastTitle">응원가 재생</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                응원가를 재생합니다.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentAudio = null;
+
+        function playCheerSong(filename, playerName) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+
+            currentAudio = new Audio(`/api/cheersongs/${filename}`);
+            
+            currentAudio.play()
+                .then(() => {
+                    showToast(`${playerName} 선수의 응원가를 재생합니다.`, 'success');
+                })
+                .catch(error => {
+                    showToast('응원가 재생에 실패했습니다.', 'danger');
+                    console.error('Audio play error:', error);
+                });
+
+            currentAudio.addEventListener('ended', () => {
+                showToast('응원가 재생이 완료되었습니다.', 'info');
+            });
+        }
+
+        function showToast(message, type) {
+            const toastElement = document.getElementById('audioToast');
+            const toastBody = document.getElementById('toastMessage');
+            const toast = new bootstrap.Toast(toastElement);
+            
+            toastBody.textContent = message;
+            toastElement.className = `toast ${getToastClass(type)}`;
+            
+            toast.show();
+        }
+
+        function getToastClass(type) {
+            switch(type) {
+                case 'success': return 'bg-success text-white';
+                case 'danger': return 'bg-danger text-white';
+                case 'info': return 'bg-info text-white';
+                default: return '';
+            }
+        }
+
+        // Add event listener for play buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.play-cheersong-btn')) {
+                    const button = e.target.closest('.play-cheersong-btn');
+                    const filename = button.dataset.filename;
+                    const playerName = button.dataset.playerName || '선수';
+                    playCheerSong(filename, playerName);
+                }
+            });
+        });
+
+        document.addEventListener('beforeunload', () => {
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+        });
+    </script>
+</body>
+</html>

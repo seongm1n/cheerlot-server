@@ -17,10 +17,6 @@ public class VersionService {
 
     private final VersionRepository versionRepository;
 
-    @Transactional(readOnly = true)
-    public Optional<Version> getVersion(String teamCode, Version.VersionType type) {
-        return versionRepository.findByTeamCodeAndType(teamCode, type);
-    }
 
     @Transactional(readOnly = true)
     public Optional<Long> getVersionNumber(String teamCode, Version.VersionType type) {

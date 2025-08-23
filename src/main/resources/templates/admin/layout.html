@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - KBO 치어롯 관리자'">KBO 치어롯 관리자</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .nav-link {
+            color: #ecf0f1 !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #3498db;
+            color: white !important;
+            transform: translateX(5px);
+        }
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .brand {
+            padding: 20px;
+            border-bottom: 1px solid #34495e;
+            text-align: center;
+        }
+        .brand h4 {
+            color: #3498db;
+            font-weight: bold;
+            margin: 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .badge {
+            border-radius: 20px;
+            padding: 8px 12px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">
+            <h4><i class="bi bi-trophy"></i> KBO 치어롯</h4>
+            <small class="text-muted">관리자 페이지</small>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" th:classappend="${#httpServletRequest.requestURI == '/admin' or #httpServletRequest.requestURI == '/admin/' ? 'active' : ''}" href="/admin">
+                <i class="bi bi-speedometer2"></i> 대시보드
+            </a>
+            <a class="nav-link" th:classappend="${#httpServletRequest.requestURI.startsWith('/admin/players') ? 'active' : ''}" href="/admin/players">
+                <i class="bi bi-people"></i> 전체 선수 명단
+            </a>
+            <a class="nav-link" th:classappend="${#httpServletRequest.requestURI.startsWith('/admin/lineup') ? 'active' : ''}" href="/admin/lineup">
+                <i class="bi bi-list-ol"></i> 선발 라인업
+            </a>
+            <a class="nav-link" th:classappend="${#httpServletRequest.requestURI.startsWith('/admin/cheersongs') ? 'active' : ''}" href="/admin/cheersongs">
+                <i class="bi bi-music-note"></i> 응원가 관리
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div th:replace="${content}">Content will be inserted here</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:if="${script}" th:utext="${script}"></script>
+</body>
+</html>

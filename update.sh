@@ -6,7 +6,7 @@ echo "🔄 업데이트 시작..."
 pkill -f "cheerlot" && echo "기존 프로세스 종료 완료" || echo "실행중인 프로세스 없음"
 
 # 2. 최신 코드 가져오기
-git pull origin dev
+git pull origin main
 
 # 3. 빌드
 ./gradlew build -x test

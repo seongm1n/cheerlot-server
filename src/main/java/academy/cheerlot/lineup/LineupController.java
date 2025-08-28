@@ -47,8 +47,9 @@ public class LineupController {
         }
         
         Team team = teamOpt.get();
-        List<Player> players = playerRepository.findByTeamCodeOrderByBatsOrder(teamCode);
-        List<PlayerDto> playerDtos = players.stream()
+        List<Player> allPlayers = playerRepository.findByTeamCodeOrderByBatsOrder(teamCode);
+        List<PlayerDto> playerDtos = allPlayers.stream()
+                .filter(player -> !"0".equals(player.getBatsOrder()))
                 .map(this::convertToDto)
                 .toList();
 

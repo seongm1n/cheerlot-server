@@ -29,7 +29,7 @@ public class AdminController {
 
     @GetMapping("")
     public String dashboard(Model model) {
-        List<Team> teams = teamRepository.findAll();
+        List<Team> teams = (List<Team>) teamRepository.findAll();
         long totalPlayers = playerRepository.count();
         long playersWithCheersongs = getPlayersWithCheersongs().size();
         
@@ -43,13 +43,12 @@ public class AdminController {
     @GetMapping("/players")
     public String players(@RequestParam(required = false) String teamCode, Model model) {
         List<Player> players;
-        List<Team> teams = teamRepository.findAll();
+        List<Team> teams = (List<Team>) teamRepository.findAll();
         
         if (teamCode != null && !teamCode.isEmpty()) {
-            Team team = teamRepository.findById(teamCode).orElse(null);
-            players = team != null ? playerRepository.findByTeamOrderByBatsOrder(team) : new ArrayList<>();
+            players = playerRepository.findByTeamCodeOrderByBatsOrder(teamCode);
         } else {
-            players = playerRepository.findAll();
+            players = (List<Player>) playerRepository.findAll();
         }
         
         Map<String, String> cheerSongFiles = getCheersongFileMap();
@@ -64,14 +63,14 @@ public class AdminController {
 
     @GetMapping("/lineup")
     public String lineup(@RequestParam(required = false) String teamCode, Model model) {
-        List<Team> teams = teamRepository.findAll();
+        List<Team> teams = (List<Team>) teamRepository.findAll();
         List<Player> startingLineup = new ArrayList<>();
         Team selectedTeam = null;
         
         if (teamCode != null && !teamCode.isEmpty()) {
             selectedTeam = teamRepository.findById(teamCode).orElse(null);
             if (selectedTeam != null) {
-                startingLineup = playerRepository.findByTeamOrderByBatsOrder(selectedTeam)
+                startingLineup = playerRepository.findByTeamCodeOrderByBatsOrder(teamCode)
                     .stream()
                     .filter(player -> player.getBatsOrder() != null && 
                                     !player.getBatsOrder().equals("0") && 
@@ -109,7 +108,7 @@ public class AdminController {
 
     @PostMapping("/player/{id}/batting-order")
     @ResponseBody
-    public Map<String, String> updateBattingOrder(@PathVariable Long id, @RequestParam String battingOrder) {
+    public Map<String, String> updateBattingOrder(@PathVariable String id, @RequestParam String battingOrder) {
         Map<String, String> response = new HashMap<>();
         try {
             Player player = playerRepository.findById(id).orElse(null);
@@ -131,9 +130,9 @@ public class AdminController {
 
     private List<Player> getPlayersWithCheersongs() {
         Map<String, String> cheerSongFiles = getCheersongFileMap();
-        return playerRepository.findAll().stream()
+        return ((List<Player>) playerRepository.findAll()).stream()
             .filter(player -> {
-                String teamCode = player.getTeam().getTeamCode().toLowerCase();
+                String teamCode = player.getTeamCode().toLowerCase();
                 String backNumber = player.getBackNumber();
                 String expectedFileName = teamCode + backNumber + ".mp3";
                 return cheerSongFiles.containsKey(expectedFileName);

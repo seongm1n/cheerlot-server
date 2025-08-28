@@ -1,5 +1,8 @@
 package academy.cheerlot.player;
 
+import academy.cheerlot.cheersong.CheerSong;
+import academy.cheerlot.cheersong.CheerSongDto;
+import academy.cheerlot.cheersong.CheerSongRepository;
 import academy.cheerlot.team.Team;
 import academy.cheerlot.team.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +22,13 @@ public class PlayerController {
 
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
+    private final CheerSongRepository cheerSongRepository;
 
     @GetMapping("/players")
     public ResponseEntity<List<PlayerDto>> getAllPlayers() {
-        List<Player> players = playerRepository.findAll();
+        List<Player> players = (List<Player>) playerRepository.findAll();
         List<PlayerDto> playerDtos = players.stream()
-                .map(PlayerDto::from)
+                .map(this::convertToDto)
                 .toList();
         
         return ResponseEntity.ok(playerDtos);
@@ -38,11 +42,20 @@ public class PlayerController {
             return ResponseEntity.notFound().build();
         }
         
-        List<Player> players = playerRepository.findByTeamOrderByBatsOrder(teamOpt.get());
+        List<Player> players = playerRepository.findByTeamCodeOrderByBatsOrder(teamCode);
         List<PlayerDto> playerDtos = players.stream()
-                .map(PlayerDto::from)
+                .map(this::convertToDto)
                 .toList();
         
         return ResponseEntity.ok(playerDtos);
+    }
+    
+    private PlayerDto convertToDto(Player player) {
+        List<CheerSong> cheerSongs = cheerSongRepository.findByPlayerId(player.getPlayerId());
+        List<CheerSongDto> cheerSongDtos = cheerSongs.stream()
+                .map(CheerSongDto::from)
+                .toList();
+        
+        return PlayerDto.from(player, cheerSongDtos);
     }
 }

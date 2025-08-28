@@ -1,33 +1,35 @@
 package academy.cheerlot.player;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
-import java.util.List;
-
-@Entity
-@Table(name = "player")
+@RedisHash("player")
 @Data
 @NoArgsConstructor
 public class Player {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String playerId; // teamCode:backNumber 형태
 
+    @Indexed
     private String name;
     private String backNumber;
     private String position;
     private String batsThrows;
     private String batsOrder;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "team")
-    @JsonIgnore
-    private academy.cheerlot.team.Team team;
+    @Indexed
+    private String teamCode;
 
-    @OneToMany(mappedBy = "player", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<academy.cheerlot.cheersong.CheerSong> cheerSongs;
+    public Player(String name, String backNumber, String position, String teamCode, String batsOrder) {
+        this.playerId = teamCode + ":" + backNumber;
+        this.name = name;
+        this.backNumber = backNumber;
+        this.position = position;
+        this.teamCode = teamCode;
+        this.batsOrder = batsOrder;
+    }
 }

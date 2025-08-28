@@ -1,27 +1,34 @@
 package academy.cheerlot.cheersong;
 
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
-@Entity
-@Table(name = "cheer_song")
+@RedisHash("cheersong")
 @Data
 @NoArgsConstructor
 public class CheerSong {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String title;
     
-    @Column(columnDefinition = "TEXT")
     private String lyrics;
     
+    @Indexed
     private String audioFileName;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "player_id")
-    private academy.cheerlot.player.Player player;
+    
+    @Indexed
+    private String playerId; // playerId 문자열로 저장
+    
+    public CheerSong(String id, String title, String lyrics, String audioFileName, String playerId) {
+        this.id = id;
+        this.title = title;
+        this.lyrics = lyrics;
+        this.audioFileName = audioFileName;
+        this.playerId = playerId;
+    }
 }

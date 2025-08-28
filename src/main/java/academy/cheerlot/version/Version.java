@@ -1,32 +1,29 @@
 package academy.cheerlot.version;
 
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "version")
+@RedisHash("version")
 @Data
 @NoArgsConstructor
 public class Version {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id; // teamCode:type 형태로 변경
 
-    @Column(nullable = false)
+    @Indexed
     private String teamCode;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Indexed
     private VersionType type;
 
-    @Column(nullable = false)
     private LocalDateTime lastUpdated;
 
-    @Column(nullable = false)
     private Long versionNumber;
 
     private String description;
@@ -37,6 +34,7 @@ public class Version {
     }
 
     public Version(String teamCode, VersionType type, String description) {
+        this.id = teamCode + ":" + type.name();
         this.teamCode = teamCode;
         this.type = type;
         this.description = description;

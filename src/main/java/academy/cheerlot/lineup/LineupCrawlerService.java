@@ -43,7 +43,7 @@ public class LineupCrawlerService {
 
     public void crawlAllLineups() {
         
-        List<Game> games = gameRepository.findAll();
+        List<Game> games = (List<Game>) gameRepository.findAll();
         if (games.isEmpty()) {
             log.warn("크롤링할 게임이 없습니다. 먼저 게임 데이터를 수집해주세요.");
             return;
@@ -115,10 +115,32 @@ public class LineupCrawlerService {
     }
     
     private void resetTeamPlayersBatsOrder(Team homeTeam, Team awayTeam) {
+        log.info("라인업 업데이트 전 선수들의 batsOrder 초기화 시작");
         
-        playerRepository.updateBatsOrderToZeroByTeam(homeTeam);
-        playerRepository.updateBatsOrderToZeroByTeam(awayTeam);
+        resetTeamBatsOrder(homeTeam.getTeamCode(), homeTeam.getName());
+        resetTeamBatsOrder(awayTeam.getTeamCode(), awayTeam.getName());
         
+        log.info("라인업 업데이트 전 batsOrder 초기화 완료");
+    }
+    
+    private void resetTeamBatsOrder(String teamCode, String teamName) {
+        try {
+            List<Player> teamPlayers = playerRepository.findByTeamCode(teamCode);
+            int updatedCount = 0;
+            
+            for (Player player : teamPlayers) {
+                if (!"0".equals(player.getBatsOrder())) {
+                    player.setBatsOrder("0");
+                    playerRepository.save(player);
+                    updatedCount++;
+                }
+            }
+            
+            log.info("팀 {} ({}): {}명의 선수 batsOrder를 0으로 초기화", teamName, teamCode, updatedCount);
+            
+        } catch (Exception e) {
+            log.error("팀 {} ({})의 batsOrder 초기화 중 오류 발생: {}", teamName, teamCode, e.getMessage(), e);
+        }
     }
     
     private boolean isSuccessResponse(JsonNode rootNode) {
@@ -141,8 +163,10 @@ public class LineupCrawlerService {
                 String playerName = playerNode.get("playerName").asText();
                 String batOrder = playerNode.get("batorder").asText();
                 
-                Optional<Player> existingPlayerOpt = playerRepository.findByNameAndTeam(playerName, team);
-                
+                List<Player> teamPlayers = playerRepository.findByTeamCode(team.getTeamCode());
+                Optional<Player> existingPlayerOpt = teamPlayers.stream()
+                    .filter(player -> playerName.equals(player.getName()))
+                    .findFirst();
                 if (existingPlayerOpt.isPresent()) {
                     Player existingPlayer = existingPlayerOpt.get();
                     existingPlayer.setBatsOrder(batOrder);

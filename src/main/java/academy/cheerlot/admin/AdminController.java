@@ -145,17 +145,25 @@ public class AdminController {
         try {
             ClassPathResource resource = new ClassPathResource("cheersongs/audio");
             if (resource.exists()) {
-                Path audioPath = Paths.get(resource.getURI());
-                Files.list(audioPath)
-                    .filter(path -> path.toString().toLowerCase().endsWith(".mp3") || 
-                                   path.toString().toLowerCase().endsWith(".mp4"))
-                    .forEach(path -> {
-                        String fileName = path.getFileName().toString();
-                        fileMap.put(fileName, fileName);
-                    });
+                if (resource.getURI().toString().startsWith("jar:")) {
+                    // JAR 파일 내부에서 실행될 때 (Docker 컨테이너)
+                    // 실제로는 리소스 폴더의 파일 목록을 하드코딩하거나 다른 방식으로 관리해야 함
+                    // 임시로 빈 맵 반환 (응원가 파일이 없다고 표시됨)
+                    System.out.println("Running in JAR mode - cheersong file listing not available");
+                } else {
+                    // 개발 환경에서 실행될 때
+                    Path audioPath = Paths.get(resource.getURI());
+                    Files.list(audioPath)
+                        .filter(path -> path.toString().toLowerCase().endsWith(".mp3") || 
+                                       path.toString().toLowerCase().endsWith(".mp4"))
+                        .forEach(path -> {
+                            String fileName = path.getFileName().toString();
+                            fileMap.put(fileName, fileName);
+                        });
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error accessing cheersong files: " + e.getMessage());
         }
         return fileMap;
     }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class Version {
 
     @Id
-    private String id; // teamCode:type 형태로 변경
+    private String id;
 
     @Indexed
     private String teamCode;
@@ -29,8 +29,8 @@ public class Version {
     private String description;
 
     public enum VersionType {
-        ROSTER,    // 선수명단 버전
-        LINEUP     // 라인업 버전
+        ROSTER,
+        LINEUP
     }
 
     public Version(String teamCode, VersionType type, String description) {
@@ -39,12 +39,12 @@ public class Version {
         this.type = type;
         this.description = description;
         this.lastUpdated = LocalDateTime.now();
-        this.versionNumber = System.currentTimeMillis();
+        this.versionNumber = 0L;
     }
 
-    public void updateVersion(String description) {
+    public void updateVersion(String description, Long newVersionNumber) {
         this.lastUpdated = LocalDateTime.now();
-        this.versionNumber = System.currentTimeMillis();
+        this.versionNumber = newVersionNumber;
         this.description = description;
     }
 }

@@ -236,24 +236,40 @@ public class LineupCrawlerService {
     private void updateTeamInfo(Team homeTeam, Team awayTeam) {
         LocalDate today = LocalDate.now();
         
-        homeTeam.setLastUpdated(today);
-        homeTeam.setLastOpponent(awayTeam.getName());
-        teamRepository.save(homeTeam);
+        boolean homeTeamUpdated = !today.equals(homeTeam.getLastUpdated()) || 
+                                  !awayTeam.getName().equals(homeTeam.getLastOpponent());
         
-        awayTeam.setLastUpdated(today);
-        awayTeam.setLastOpponent(homeTeam.getName());
-        teamRepository.save(awayTeam);
+        boolean awayTeamUpdated = !today.equals(awayTeam.getLastUpdated()) || 
+                                  !homeTeam.getName().equals(awayTeam.getLastOpponent());
         
-        updateTeamVersions(homeTeam, awayTeam);
+        if (homeTeamUpdated) {
+            homeTeam.setLastUpdated(today);
+            homeTeam.setLastOpponent(awayTeam.getName());
+            teamRepository.save(homeTeam);
+        }
+        
+        if (awayTeamUpdated) {
+            awayTeam.setLastUpdated(today);
+            awayTeam.setLastOpponent(homeTeam.getName());
+            teamRepository.save(awayTeam);
+        }
+        
+        if (homeTeamUpdated || awayTeamUpdated) {
+            updateTeamVersions(homeTeam, awayTeam, homeTeamUpdated, awayTeamUpdated);
+        }
         
     }
     
-    private void updateTeamVersions(Team homeTeam, Team awayTeam) {
+    private void updateTeamVersions(Team homeTeam, Team awayTeam, boolean homeTeamUpdated, boolean awayTeamUpdated) {
         String gameDescription = String.format("%s vs %s 라인업 업데이트", homeTeam.getName(), awayTeam.getName());
         
-        versionService.updateLineupVersion(homeTeam.getTeamCode(), gameDescription);
+        if (homeTeamUpdated) {
+            versionService.updateLineupVersion(homeTeam.getTeamCode(), gameDescription);
+        }
         
-        versionService.updateLineupVersion(awayTeam.getTeamCode(), gameDescription);
+        if (awayTeamUpdated) {
+            versionService.updateLineupVersion(awayTeam.getTeamCode(), gameDescription);
+        }
         
     }
 }

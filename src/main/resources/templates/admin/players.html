@@ -174,7 +174,7 @@
                         <tbody>
                             <tr th:each="player : ${players}">
                                 <td>
-                                    <span class="badge bg-info" th:text="${player.team.teamCode}">팀코드</span>
+                                    <span class="badge bg-info" th:text="${player.teamCode}">팀코드</span>
                                 </td>
                                 <td>
                                     <strong th:text="${player.name}">선수명</strong>
@@ -188,24 +188,24 @@
                                     <input type="number" 
                                            class="batting-order-input" 
                                            th:value="${player.batsOrder}" 
-                                           th:data-player-id="${player.id}"
+                                           th:data-player-id="${player.playerId}"
                                            min="0" max="9"
                                            onchange="updateBattingOrder(this)">
                                 </td>
                                 <td>
-                                    <span th:if="${cheerSongFiles.containsKey(player.team.teamCode.toLowerCase() + player.backNumber + '.mp3')}" 
+                                    <span th:if="${cheerSongFiles.containsKey(player.teamCode.toLowerCase() + player.backNumber + '.mp3')}" 
                                           class="cheersong-indicator">
                                         <i class="bi bi-music-note-beamed"></i> 있음
                                     </span>
-                                    <span th:unless="${cheerSongFiles.containsKey(player.team.teamCode.toLowerCase() + player.backNumber + '.mp3')}" 
+                                    <span th:unless="${cheerSongFiles.containsKey(player.teamCode.toLowerCase() + player.backNumber + '.mp3')}" 
                                           class="no-cheersong">
                                         <i class="bi bi-music-note"></i> 없음
                                     </span>
                                 </td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-primary play-cheersong-btn" 
-                                            th:data-filename="${player.team.teamCode.toLowerCase() + player.backNumber + '.mp3'}"
-                                            th:disabled="${!cheerSongFiles.containsKey(player.team.teamCode.toLowerCase() + player.backNumber + '.mp3')}">
+                                            th:data-filename="${player.teamCode.toLowerCase() + player.backNumber + '.mp3'}"
+                                            th:disabled="${!cheerSongFiles.containsKey(player.teamCode.toLowerCase() + player.backNumber + '.mp3')}">
                                         <i class="bi bi-play"></i>
                                     </button>
                                 </td>

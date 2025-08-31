@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>버전 관리 - CheerLot 관리자</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .nav-link {
+            color: #ecf0f1 !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #3498db;
+            color: white !important;
+            transform: translateX(5px);
+        }
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .brand {
+            padding: 20px;
+            border-bottom: 1px solid #34495e;
+            text-align: center;
+        }
+        .brand h4 {
+            color: #3498db;
+            font-weight: bold;
+            margin: 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table thead th {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .version-badge {
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 0.8em;
+        }
+        .version-number {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .update-btn {
+            padding: 4px 8px;
+            font-size: 0.8em;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">
+            <h4><i class="bi bi-trophy"></i> CheerLot</h4>
+            <small class="text-muted">관리자 페이지</small>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="/admin">
+                <i class="bi bi-speedometer2"></i> 대시보드
+            </a>
+            <a class="nav-link" href="/admin/players">
+                <i class="bi bi-people"></i> 전체 선수 명단
+            </a>
+            <a class="nav-link" href="/admin/lineup">
+                <i class="bi bi-list-ol"></i> 선발 라인업
+            </a>
+            <a class="nav-link" href="/admin/cheersongs">
+                <i class="bi bi-music-note"></i> 응원가 관리
+            </a>
+            <a class="nav-link active" href="/admin/versions">
+                <i class="bi bi-git"></i> 버전 관리
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-git"></i> 버전 관리</h1>
+            <span class="badge bg-primary" th:text="'총 ' + ${#lists.size(teams)} + '개 팀'">총 0개 팀</span>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-list-ul"></i> 팀별 버전 현황</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>팀명</th>
+                                <th>팀코드</th>
+                                <th>로스터 버전</th>
+                                <th>로스터 업데이트</th>
+                                <th>라인업 버전</th>
+                                <th>라인업 업데이트</th>
+                                <th>작업</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="team : ${teams}">
+                                <td>
+                                    <strong th:text="${team.name}">팀명</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info" th:text="${team.teamCode}">팀코드</span>
+                                </td>
+                                <td>
+                                    <div th:if="${versionMap[team.teamCode] != null and versionMap[team.teamCode]['ROSTER'] != null}">
+                                        <span class="version-number" th:text="${versionMap[team.teamCode]['ROSTER'].versionNumber}">0</span>
+                                        <br>
+                                        <small class="text-muted" th:text="${#temporals.format(versionMap[team.teamCode]['ROSTER'].lastUpdated, 'yyyy-MM-dd HH:mm')}">날짜</small>
+                                    </div>
+                                    <span th:unless="${versionMap[team.teamCode] != null and versionMap[team.teamCode]['ROSTER'] != null}" class="text-muted">미설정</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary update-version-btn" 
+                                            th:data-team-code="${team.teamCode}"
+                                            th:data-version-type="roster"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#updateVersionModal">
+                                        <i class="bi bi-arrow-clockwise"></i> 업데이트
+                                    </button>
+                                </td>
+                                <td>
+                                    <div th:if="${versionMap[team.teamCode] != null and versionMap[team.teamCode]['LINEUP'] != null}">
+                                        <span class="version-number" th:text="${versionMap[team.teamCode]['LINEUP'].versionNumber}">0</span>
+                                        <br>
+                                        <small class="text-muted" th:text="${#temporals.format(versionMap[team.teamCode]['LINEUP'].lastUpdated, 'yyyy-MM-dd HH:mm')}">날짜</small>
+                                    </div>
+                                    <span th:unless="${versionMap[team.teamCode] != null and versionMap[team.teamCode]['LINEUP'] != null}" class="text-muted">미설정</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-success update-version-btn" 
+                                            th:data-team-code="${team.teamCode}"
+                                            th:data-version-type="lineup"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#updateVersionModal">
+                                        <i class="bi bi-arrow-clockwise"></i> 업데이트
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-warning" 
+                                            onclick="updateAllVersions(this.dataset.teamCode)"
+                                            th:data-team-code="${team.teamCode}">
+                                        <i class="bi bi-arrow-repeat"></i> 전체
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(teams)}">
+                                <td colspan="7" class="text-center text-muted">등록된 팀이 없습니다.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 버전 업데이트 모달 -->
+    <div class="modal fade" id="updateVersionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">버전 업데이트</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateVersionForm">
+                        <div class="mb-3">
+                            <label for="versionNumber" class="form-label">버전 번호</label>
+                            <input type="number" class="form-control" id="versionNumber" placeholder="예: 5" min="0" required>
+                            <div class="form-text">설정할 버전 번호를 입력하세요 (0 이상)</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="versionDescription" class="form-label">업데이트 설명</label>
+                            <input type="text" class="form-control" id="versionDescription" placeholder="예: 선수 로스터 수정" required>
+                        </div>
+                        <input type="hidden" id="modalTeamCode">
+                        <input type="hidden" id="modalVersionType">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="submitVersionUpdate()">업데이트</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 알림 -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="updateToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">알림</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage">
+                메시지가 여기에 표시됩니다.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateButtons = document.querySelectorAll('.update-version-btn');
+            updateButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    document.getElementById('modalTeamCode').value = this.dataset.teamCode;
+                    document.getElementById('modalVersionType').value = this.dataset.versionType;
+                    document.getElementById('versionNumber').value = '';
+                    document.getElementById('versionDescription').value = '';
+                });
+            });
+        });
+
+        function submitVersionUpdate() {
+            const teamCode = document.getElementById('modalTeamCode').value;
+            const versionType = document.getElementById('modalVersionType').value;
+            const versionNumber = document.getElementById('versionNumber').value;
+            const description = document.getElementById('versionDescription').value;
+
+            if (!versionNumber || versionNumber < 0) {
+                showToast('버전 번호를 올바르게 입력해주세요. (0 이상)', 'danger');
+                return;
+            }
+
+            if (!description.trim()) {
+                showToast('업데이트 설명을 입력해주세요.', 'danger');
+                return;
+            }
+
+            fetch(`/admin/version/${teamCode}/${versionType}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `versionNumber=${encodeURIComponent(versionNumber)}&description=${encodeURIComponent(description)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                showToast(data.message, data.status === 'success' ? 'success' : 'danger');
+                if (data.status === 'success') {
+                    setTimeout(() => location.reload(), 1500);
+                }
+                bootstrap.Modal.getInstance(document.getElementById('updateVersionModal')).hide();
+            })
+            .catch(error => {
+                showToast('업데이트 중 오류가 발생했습니다.', 'danger');
+                console.error('Error:', error);
+            });
+        }
+
+        function updateAllVersions(teamCode) {
+            if (!confirm('해당 팀의 로스터와 라인업 버전을 모두 업데이트하시겠습니까?')) {
+                return;
+            }
+
+            const description = '관리자 수동 업데이트';
+            
+            Promise.all([
+                fetch(`/admin/version/${teamCode}/roster/increment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `description=${encodeURIComponent(description)}`
+                }),
+                fetch(`/admin/version/${teamCode}/lineup/increment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `description=${encodeURIComponent(description)}`
+                })
+            ])
+            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then(results => {
+                const allSuccess = results.every(r => r.status === 'success');
+                showToast(
+                    allSuccess ? '모든 버전이 업데이트되었습니다.' : '일부 버전 업데이트에 실패했습니다.',
+                    allSuccess ? 'success' : 'warning'
+                );
+                if (allSuccess) {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            })
+            .catch(error => {
+                showToast('업데이트 중 오류가 발생했습니다.', 'danger');
+                console.error('Error:', error);
+            });
+        }
+
+        function showToast(message, type) {
+            const toastElement = document.getElementById('updateToast');
+            const toastBody = document.getElementById('toastMessage');
+            const toast = new bootstrap.Toast(toastElement);
+            
+            toastBody.textContent = message;
+            toastElement.className = `toast ${type === 'success' ? 'bg-success' : type === 'warning' ? 'bg-warning' : 'bg-danger'} text-white`;
+            
+            toast.show();
+        }
+    </script>
+</body>
+</html>

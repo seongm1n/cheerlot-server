@@ -4,6 +4,9 @@ import academy.cheerlot.player.Player;
 import academy.cheerlot.player.PlayerRepository;
 import academy.cheerlot.team.Team;
 import academy.cheerlot.team.TeamRepository;
+import academy.cheerlot.version.Version;
+import academy.cheerlot.version.VersionRepository;
+import academy.cheerlot.version.VersionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
@@ -26,6 +29,12 @@ public class AdminController {
 
     @Autowired
     private TeamRepository teamRepository;
+
+    @Autowired
+    private VersionService versionService;
+
+    @Autowired
+    private VersionRepository versionRepository;
 
     @GetMapping("")
     public String dashboard(Model model) {
@@ -124,6 +133,85 @@ public class AdminController {
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", "업데이트 중 오류가 발생했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @GetMapping("/versions")
+    public String versions(Model model) {
+        List<Team> teams = (List<Team>) teamRepository.findAll();
+        
+        for (Team team : teams) {
+            ensureVersionExists(team.getTeamCode(), Version.VersionType.ROSTER);
+            ensureVersionExists(team.getTeamCode(), Version.VersionType.LINEUP);
+        }
+        
+        List<Version> allVersions = (List<Version>) versionRepository.findAll();
+        
+        Map<String, Map<String, Version>> versionMap = new HashMap<>();
+        for (Version version : allVersions) {
+            versionMap.computeIfAbsent(version.getTeamCode(), k -> new HashMap<>())
+                      .put(version.getType().name(), version);
+        }
+        
+        model.addAttribute("teams", teams);
+        model.addAttribute("versionMap", versionMap);
+        
+        return "admin/versions";
+    }
+
+    private void ensureVersionExists(String teamCode, Version.VersionType type) {
+        Optional<Version> existingVersion = versionRepository.findByTeamCodeAndType(teamCode, type);
+        if (!existingVersion.isPresent()) {
+            Version initialVersion = new Version(teamCode, type, "초기 버전");
+            versionRepository.save(initialVersion);
+        }
+    }
+
+    @PostMapping("/version/{teamCode}/{type}/update")
+    @ResponseBody
+    public Map<String, String> updateVersion(@PathVariable String teamCode, 
+                                           @PathVariable String type, 
+                                           @RequestParam String description,
+                                           @RequestParam Long versionNumber) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            if (versionNumber < 0) {
+                response.put("status", "error");
+                response.put("message", "버전 번호는 0 이상이어야 합니다.");
+                return response;
+            }
+            
+            Version.VersionType versionType = Version.VersionType.valueOf(type.toUpperCase());
+            versionService.setVersionNumber(teamCode, versionType, description, versionNumber);
+            
+            response.put("status", "success");
+            response.put("message", "버전이 성공적으로 업데이트되었습니다.");
+        } catch (NumberFormatException e) {
+            response.put("status", "error");
+            response.put("message", "버전 번호는 숫자여야 합니다.");
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "버전 업데이트 중 오류가 발생했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @PostMapping("/version/{teamCode}/{type}/increment")
+    @ResponseBody
+    public Map<String, String> incrementVersion(@PathVariable String teamCode, 
+                                              @PathVariable String type, 
+                                              @RequestParam String description) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            Version.VersionType versionType = Version.VersionType.valueOf(type.toUpperCase());
+            versionService.updateVersion(teamCode, versionType, description);
+            
+            response.put("status", "success");
+            response.put("message", "버전이 성공적으로 증가되었습니다.");
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "버전 업데이트 중 오류가 발생했습니다: " + e.getMessage());
         }
         return response;
     }

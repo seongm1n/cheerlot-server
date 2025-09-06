@@ -199,7 +199,7 @@
                                         <div>
                                             <h6 class="mb-1" th:text="${player.name}">선수명</h6>
                                             <div class="small">
-                                                <span class="team-badge badge" th:text="${player.team.teamCode}">팀</span>
+                                                <span class="team-badge badge" th:text="${player.teamCode}">팀</span>
                                                 <span class="ms-2">등번호: <span th:text="${player.backNumber}">00</span></span>
                                             </div>
                                         </div>
@@ -209,10 +209,10 @@
                                     <div class="audio-controls d-flex justify-content-between align-items-center">
                                         <div class="file-info">
                                             <i class="bi bi-file-earmark-music"></i>
-                                            <span th:text="${player.team.teamCode.toLowerCase() + player.backNumber + '.mp3'}">파일명</span>
+                                            <span th:text="${player.teamCode.toLowerCase() + player.backNumber + '.mp3'}">파일명</span>
                                         </div>
                                         <button class="play-btn btn play-cheersong-btn" 
-                                                th:data-filename="${player.team.teamCode.toLowerCase() + player.backNumber + '.mp3'}"
+                                                th:data-filename="${player.teamCode.toLowerCase() + player.backNumber + '.mp3'}"
                                                 th:data-player-name="${player.name}">
                                             <i class="bi bi-play-fill"></i>
                                         </button>

@@ -1,10 +1,10 @@
 package academy.cheerlot.lineup;
 
 import academy.cheerlot.cheersong.CheerSong;
-import academy.cheerlot.cheersong.CheerSongDto;
+import academy.cheerlot.cheersong.CheerSongResponse;
 import academy.cheerlot.cheersong.CheerSongRepository;
 import academy.cheerlot.player.Player;
-import academy.cheerlot.player.PlayerDto;
+import academy.cheerlot.player.PlayerResponse;
 import academy.cheerlot.player.PlayerRepository;
 import academy.cheerlot.team.Team;
 import academy.cheerlot.team.TeamRepository;
@@ -48,9 +48,9 @@ public class LineupController {
         
         Team team = teamOpt.get();
         List<Player> allPlayers = playerRepository.findByTeamCodeOrderByBatsOrder(teamCode);
-        List<PlayerDto> playerDtos = allPlayers.stream()
+        List<PlayerResponse> playerResponses = allPlayers.stream()
                 .filter(player -> !"0".equals(player.getBatsOrder()))
-                .map(this::convertToDto)
+                .map(this::convertToResponse)
                 .toList();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM월 dd일");
@@ -59,18 +59,18 @@ public class LineupController {
         LineupResponse response = new LineupResponse(
                 lastUpdated,
                 team.getLastOpponent(),
-                playerDtos
+                playerResponses
         );
         
         return ResponseEntity.ok(response);
     }
     
-    private PlayerDto convertToDto(Player player) {
+    private PlayerResponse convertToResponse(Player player) {
         List<CheerSong> cheerSongs = cheerSongRepository.findByPlayerId(player.getPlayerId());
-        List<CheerSongDto> cheerSongDtos = cheerSongs.stream()
-                .map(CheerSongDto::from)
+        List<CheerSongResponse> cheerSongResponses = cheerSongs.stream()
+                .map(CheerSongResponse::from)
                 .toList();
         
-        return PlayerDto.from(player, cheerSongDtos);
+        return PlayerResponse.from(player, cheerSongResponses);
     }
 }

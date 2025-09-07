@@ -1,7 +1,7 @@
 package academy.cheerlot.player;
 
 import academy.cheerlot.cheersong.CheerSong;
-import academy.cheerlot.cheersong.CheerSongDto;
+import academy.cheerlot.cheersong.CheerSongResponse;
 import academy.cheerlot.cheersong.CheerSongRepository;
 import academy.cheerlot.team.Team;
 import academy.cheerlot.team.TeamRepository;
@@ -25,17 +25,17 @@ public class PlayerController {
     private final CheerSongRepository cheerSongRepository;
 
     @GetMapping("/players")
-    public ResponseEntity<List<PlayerDto>> getAllPlayers() {
+    public ResponseEntity<List<PlayerResponse>> getAllPlayers() {
         List<Player> players = (List<Player>) playerRepository.findAll();
-        List<PlayerDto> playerDtos = players.stream()
-                .map(this::convertToDto)
+        List<PlayerResponse> playerResponses = players.stream()
+                .map(this::convertToResponse)
                 .toList();
         
-        return ResponseEntity.ok(playerDtos);
+        return ResponseEntity.ok(playerResponses);
     }
 
     @GetMapping("/players/{teamCode}")
-    public ResponseEntity<List<PlayerDto>> getPlayersByTeam(@PathVariable String teamCode) {
+    public ResponseEntity<List<PlayerResponse>> getPlayersByTeam(@PathVariable String teamCode) {
         Optional<Team> teamOpt = teamRepository.findById(teamCode);
         
         if (teamOpt.isEmpty()) {
@@ -43,19 +43,19 @@ public class PlayerController {
         }
         
         List<Player> players = playerRepository.findByTeamCodeOrderByBatsOrder(teamCode);
-        List<PlayerDto> playerDtos = players.stream()
-                .map(this::convertToDto)
+        List<PlayerResponse> playerResponses = players.stream()
+                .map(this::convertToResponse)
                 .toList();
         
-        return ResponseEntity.ok(playerDtos);
+        return ResponseEntity.ok(playerResponses);
     }
     
-    private PlayerDto convertToDto(Player player) {
+    private PlayerResponse convertToResponse(Player player) {
         List<CheerSong> cheerSongs = cheerSongRepository.findByPlayerId(player.getPlayerId());
-        List<CheerSongDto> cheerSongDtos = cheerSongs.stream()
-                .map(CheerSongDto::from)
+        List<CheerSongResponse> cheerSongResponses = cheerSongs.stream()
+                .map(CheerSongResponse::from)
                 .toList();
         
-        return PlayerDto.from(player, cheerSongDtos);
+        return PlayerResponse.from(player, cheerSongResponses);
     }
 }

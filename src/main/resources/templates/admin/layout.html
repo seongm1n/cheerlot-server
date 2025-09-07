@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title} + ' - KBO 치어롯 관리자'">KBO 치어롯 관리자</title>
+    <title th:text="${title} + ' - KBO CheerLot 관리자'">KBO CheerLot 관리자</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -99,7 +99,7 @@
 <body>
     <div class="sidebar">
         <div class="brand">
-            <h4><i class="bi bi-trophy"></i> KBO 치어롯</h4>
+            <h4><i class="bi bi-trophy"></i> KBO CheerLot</h4>
             <small class="text-muted">관리자 페이지</small>
         </div>
         <nav class="nav flex-column">
@@ -114,6 +114,9 @@
             </a>
             <a class="nav-link" th:classappend="${#httpServletRequest.requestURI.startsWith('/admin/cheersongs') ? 'active' : ''}" href="/admin/cheersongs">
                 <i class="bi bi-music-note"></i> 응원가 관리
+            </a>
+            <a class="nav-link" th:classappend="${#httpServletRequest.requestURI.startsWith('/admin/api-docs') ? 'active' : ''}" href="/admin/api-docs">
+                <i class="bi bi-book"></i> API 명세서
             </a>
         </nav>
     </div>

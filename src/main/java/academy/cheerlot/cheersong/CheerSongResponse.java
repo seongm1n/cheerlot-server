@@ -1,14 +1,14 @@
 package academy.cheerlot.cheersong;
 
-public record CheerSongDto(
+public record CheerSongResponse(
         String id,
         String title,
         String lyrics,
         String audioFileName,
         String playerId
 ) {
-    public static CheerSongDto from(CheerSong cheerSong) {
-        return new CheerSongDto(
+    public static CheerSongResponse from(CheerSong cheerSong) {
+        return new CheerSongResponse(
                 cheerSong.getId(),
                 cheerSong.getTitle(),
                 cheerSong.getLyrics(),

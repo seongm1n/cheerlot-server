@@ -7,8 +7,11 @@ import academy.cheerlot.team.TeamRepository;
 import academy.cheerlot.version.Version;
 import academy.cheerlot.version.VersionRepository;
 import academy.cheerlot.version.VersionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,21 +23,16 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
+@RequiredArgsConstructor
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
-    @Autowired
-    private PlayerRepository playerRepository;
-
-    @Autowired
-    private TeamRepository teamRepository;
-
-    @Autowired
-    private VersionService versionService;
-
-    @Autowired
-    private VersionRepository versionRepository;
+    private final PlayerRepository playerRepository;
+    private final TeamRepository teamRepository;
+    private final VersionService versionService;
+    private final VersionRepository versionRepository;
 
     @GetMapping("")
     public String dashboard(Model model) {
@@ -160,6 +158,12 @@ public class AdminController {
         return "admin/versions";
     }
 
+    @GetMapping("/api-docs")
+    public String apiDocs(Model model) {
+        model.addAttribute("baseUrl", "http://15.164.33.36:8080");
+        return "admin/api-docs";
+    }
+
     private void ensureVersionExists(String teamCode, Version.VersionType type) {
         Optional<Version> existingVersion = versionRepository.findByTeamCodeAndType(teamCode, type);
         if (!existingVersion.isPresent()) {
@@ -231,27 +235,31 @@ public class AdminController {
     private Map<String, String> getCheersongFileMap() {
         Map<String, String> fileMap = new HashMap<>();
         try {
-            ClassPathResource resource = new ClassPathResource("cheersongs/audio");
-            if (resource.exists()) {
-                if (resource.getURI().toString().startsWith("jar:")) {
-                    // JAR 파일 내부에서 실행될 때 (Docker 컨테이너)
-                    // 실제로는 리소스 폴더의 파일 목록을 하드코딩하거나 다른 방식으로 관리해야 함
-                    // 임시로 빈 맵 반환 (응원가 파일이 없다고 표시됨)
-                    System.out.println("Running in JAR mode - cheersong file listing not available");
-                } else {
-                    // 개발 환경에서 실행될 때
-                    Path audioPath = Paths.get(resource.getURI());
-                    Files.list(audioPath)
-                        .filter(path -> path.toString().toLowerCase().endsWith(".mp3") || 
-                                       path.toString().toLowerCase().endsWith(".mp4"))
-                        .forEach(path -> {
-                            String fileName = path.getFileName().toString();
-                            fileMap.put(fileName, fileName);
-                        });
+            // PathMatchingResourcePatternResolver를 사용하여 JAR 환경에서도 리소스 파일 탐색
+            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+            
+            // mp3 파일 찾기
+            Resource[] mp3Resources = resolver.getResources("classpath:cheersongs/audio/*.mp3");
+            for (Resource resource : mp3Resources) {
+                String fileName = resource.getFilename();
+                if (fileName != null) {
+                    fileMap.put(fileName, fileName);
                 }
             }
+            
+            // mp4 파일 찾기
+            Resource[] mp4Resources = resolver.getResources("classpath:cheersongs/audio/*.mp4");
+            for (Resource resource : mp4Resources) {
+                String fileName = resource.getFilename();
+                if (fileName != null) {
+                    fileMap.put(fileName, fileName);
+                }
+            }
+            
+            log.info("응원가 파일 {}개 발견", fileMap.size());
+            
         } catch (IOException e) {
-            System.out.println("Error accessing cheersong files: " + e.getMessage());
+            log.error("응원가 파일 접근 중 오류 발생", e);
         }
         return fileMap;
     }

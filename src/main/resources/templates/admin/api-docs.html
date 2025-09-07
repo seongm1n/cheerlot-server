@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 명세서 - KBO CheerLot 관리자</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .nav-link {
+            color: #ecf0f1 !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #3498db;
+            color: white !important;
+            transform: translateX(5px);
+        }
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        .brand {
+            padding: 20px;
+            border-bottom: 1px solid #34495e;
+            text-align: center;
+        }
+        .brand h4 {
+            color: #3498db;
+            font-weight: bold;
+            margin: 0;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            transition: transform 0.2s ease;
+        }
+        .api-section {
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            margin: 20px 0;
+        }
+        .method-badge {
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .method-get { background-color: #61affe; color: white; }
+        .method-post { background-color: #49cc90; color: white; }
+        .method-put { background-color: #fca130; color: white; }
+        .method-delete { background-color: #f93e3e; color: white; }
+        
+        .code-block {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .json-response {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .toc {
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .toc ul ul {
+            padding-left: 20px;
+        }
+        .toc a {
+            text-decoration: none;
+            color: #6c757d;
+            display: block;
+            padding: 5px 0;
+        }
+        .toc a:hover {
+            color: #3498db;
+        }
+        .param-list {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .param-item {
+            margin-bottom: 8px;
+        }
+        .param-name {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .param-type {
+            background-color: #3498db;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin: 0 5px;
+        }
+        .param-required {
+            background-color: #e74c3c;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+        }
+        .response-code {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .code-200 { background-color: #d4edda; color: #155724; }
+        .code-404 { background-color: #f8d7da; color: #721c24; }
+        .code-500 { background-color: #f5c6cb; color: #721c24; }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">
+            <h4><i class="bi bi-trophy"></i> KBO CheerLot</h4>
+            <small class="text-muted">관리자 페이지</small>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="/admin">
+                <i class="bi bi-speedometer2"></i> 대시보드
+            </a>
+            <a class="nav-link" href="/admin/players">
+                <i class="bi bi-people"></i> 전체 선수 명단
+            </a>
+            <a class="nav-link" href="/admin/lineup">
+                <i class="bi bi-list-ol"></i> 선발 라인업
+            </a>
+            <a class="nav-link" href="/admin/cheersongs">
+                <i class="bi bi-music-note"></i> 응원가 관리
+            </a>
+            <a class="nav-link active" href="/admin/api-docs">
+                <i class="bi bi-book"></i> API 명세서
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="row">
+            <!-- 목차 -->
+            <div class="col-md-3">
+                <div class="card toc">
+                    <div class="card-header">
+                        <h6><i class="bi bi-list-ul"></i> 목차</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            <li><a href="#overview">프로젝트 개요</a></li>
+                            <li><a href="#base-url">Base URL</a></li>
+                            <li>
+                                <a href="#endpoints">API 엔드포인트</a>
+                                <ul>
+                                    <li><a href="#player-api">선수 관리 API</a></li>
+                                    <li><a href="#lineup-api">라인업 관리 API</a></li>
+                                    <li><a href="#cheersong-api">응원가 관리 API</a></li>
+                                    <li><a href="#version-api">버전 관리 API</a></li>
+                                    <li><a href="#admin-api">관리자 API</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#team-codes">팀 코드 정보</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 메인 컨텐츠 -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="mb-4">🏟️ Cheerlot Server API 명세서</h1>
+                        
+                        <!-- 프로젝트 개요 -->
+                        <section id="overview" class="api-section">
+                            <h2>📋 프로젝트 개요</h2>
+                            
+                            <h4>🎯 목적</h4>
+                            <p>KBO(한국야구위원회) 라인업 및 응원가 데이터를 제공하는 REST API 서버</p>
+                            
+                            <h4>🏗️ 주요 기능</h4>
+                            <ul>
+                                <li>KBO 선수 및 팀 정보 관리</li>
+                                <li>실시간 라인업 데이터 크롤링</li>
+                                <li>선수별 응원가 오디오 파일 제공</li>
+                                <li>버전 관리 시스템</li>
+                                <li>웹 기반 관리자 인터페이스</li>
+                            </ul>
+                        </section>
+
+                        <!-- Base URL -->
+                        <section id="base-url" class="api-section">
+                            <h2>🌍 Base URL</h2>
+                            <div class="code-block">
+                                <code th:text="${baseUrl}">http://15.164.33.36:8080</code>
+                            </div>
+                        </section>
+
+                        <!-- API 엔드포인트 -->
+                        <section id="endpoints" class="api-section">
+                            <h2>📖 API 엔드포인트 명세</h2>
+                            
+                            <!-- 선수 관리 API -->
+                            <div id="player-api" class="card mb-4">
+                                <div class="card-header">
+                                    <h3>👥 선수 관리 (Player API)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <!-- 전체 선수 조회 -->
+                                    <div class="mb-4">
+                                        <h4>전체 선수 조회</h4>
+                                        <p>
+                                            <span class="method-badge method-get">GET</span>
+                                            <code>/api/players</code>
+                                        </p>
+                                        <p><strong>설명:</strong> 모든 KBO 선수 정보를 조회합니다.</p>
+                                        
+                                        <h5>응답 예시:</h5>
+                                        <div class="json-response">
+<pre>[
+    {
+        "playerId": "LG:10",
+        "name": "이민호",
+        "backNumber": "10",
+        "position": "외야수",
+        "batsThrows": "우타 좌투",
+        "batsOrder": "1",
+        "teamCode": "LG",
+        "cheerSongs": [
+            {
+                "id": "lg10-cheer-1",
+                "title": "이민호 응원가",
+                "lyrics": "이민호 이민호 우리의 스타\\n홈런 홈런 날려라",
+                "audioFileName": "lg10.mp3",
+                "playerId": "LG:10"
+            }
+        ]
+    }
+]</pre>
+                                        </div>
+                                        
+                                        <h5>응답 코드:</h5>
+                                        <p><span class="response-code code-200">200 OK</span> 성공적으로 조회됨</p>
+                                    </div>
+                                    
+                                    <!-- 팀별 선수 조회 -->
+                                    <div class="mb-4">
+                                        <h4>팀별 선수 조회</h4>
+                                        <p>
+                                            <span class="method-badge method-get">GET</span>
+                                            <code>/api/players/{teamCode}</code>
+                                        </p>
+                                        <p><strong>설명:</strong> 특정 팀의 선수 정보를 타순 순으로 조회합니다.</p>
+                                        
+                                        <h5>파라미터:</h5>
+                                        <div class="param-list">
+                                            <div class="param-item">
+                                                <span class="param-name">teamCode</span>
+                                                <span class="param-type">string</span>
+                                                <span class="param-required">필수</span>
+                                                팀 코드 (LG, KIA, SSG, LT, HH, NC, OB, SK, HT, WO)
+                                            </div>
+                                        </div>
+                                        
+                                        <h5>응답 코드:</h5>
+                                        <p>
+                                            <span class="response-code code-200">200 OK</span> 성공적으로 조회됨<br>
+                                            <span class="response-code code-404">404 Not Found</span> 해당 팀을 찾을 수 없음
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 라인업 관리 API -->
+                            <div id="lineup-api" class="card mb-4">
+                                <div class="card-header">
+                                    <h3>📋 라인업 관리 (Lineup API)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <!-- 팀별 라인업 조회 -->
+                                    <div class="mb-4">
+                                        <h4>팀별 라인업 조회</h4>
+                                        <p>
+                                            <span class="method-badge method-get">GET</span>
+                                            <code>/api/lineups/{teamCode}</code>
+                                        </p>
+                                        <p><strong>설명:</strong> 특정 팀의 현재 라인업 정보를 조회합니다. (타순이 있는 선수만 포함)</p>
+                                        
+                                        <h5>응답 예시:</h5>
+                                        <div class="json-response">
+<pre>{
+    "updated": "09월 07일",
+    "opponent": "vs KIA",
+    "players": [
+        {
+            "playerId": "LG:10",
+            "name": "이민호",
+            "backNumber": "10",
+            "position": "외야수",
+            "batsThrows": "우타 좌투",
+            "batsOrder": "1",
+            "teamCode": "LG",
+            "cheerSongs": [...]
+        }
+    ]
+}</pre>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 수동 크롤링 실행 -->
+                                    <div class="mb-4">
+                                        <h4>수동 크롤링 실행</h4>
+                                        <p>
+                                            <span class="method-badge method-get">GET</span>
+                                            <code>/api/crawl</code>
+                                        </p>
+                                        <p><strong>설명:</strong> 경기 일정 및 라인업 데이터를 수동으로 크롤링합니다.</p>
+                                        
+                                        <h5>응답 예시:</h5>
+                                        <div class="json-response">
+<pre>"크롤링 완료"</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 응원가 관리 API -->
+                            <div id="cheersong-api" class="card mb-4">
+                                <div class="card-header">
+                                    <h3>🎵 응원가 관리 (CheerSong API)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <h4>응원가 오디오 파일 조회</h4>
+                                        <p>
+                                            <span class="method-badge method-get">GET</span>
+                                            <code>/api/cheersongs/{code}</code>
+                                        </p>
+                                        <p><strong>설명:</strong> 선수별 응원가 오디오 파일을 제공합니다.</p>
+                                        
+                                        <h5>파라미터:</h5>
+                                        <div class="param-list">
+                                            <div class="param-item">
+                                                <span class="param-name">code</span>
+                                                <span class="param-type">string</span>
+                                                <span class="param-required">필수</span>
+                                                응원가 파일 코드 (팀코드 + 백넘버 + .mp3/.mp4)
+                                            </div>
+                                        </div>
+                                        
+                                        <h5>예시 요청:</h5>
+                                        <div class="code-block">
+                                            <code>GET /api/cheersongs/lg10.mp3</code><br>
+                                            <code>GET /api/cheersongs/kia7.mp3</code><br>
+                                            <code>GET /api/cheersongs/ssg39.mp3</code>
+                                        </div>
+                                        
+                                        <h5>응답:</h5>
+                                        <p>Content-Type: <code>audio/mpeg</code> (mp3) 또는 <code>audio/mp4</code> (mp4)<br>
+                                        Binary audio data (음성 파일 스트림)</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 버전 관리 API -->
+                            <div id="version-api" class="card mb-4">
+                                <div class="card-header">
+                                    <h3>📊 버전 관리 (Version API)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <h4>로스터 버전 조회</h4>
+                                        <p>
+                                            <span class="method-badge method-get">GET</span>
+                                            <code>/api/version/roster/{teamCode}/number</code>
+                                        </p>
+                                        <p><strong>설명:</strong> 특정 팀의 로스터 버전 번호를 조회합니다. 로스터 정보가 변경될 때마다 버전 번호가 1씩 증가합니다.</p>
+                                        
+                                        <h5>응답 예시:</h5>
+                                        <div class="json-response"><pre>12</pre></div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h4>라인업 버전 조회</h4>
+                                        <p>
+                                            <span class="method-badge method-get">GET</span>
+                                            <code>/api/version/lineup/{teamCode}/number</code>
+                                        </p>
+                                        <p><strong>설명:</strong> 특정 팀의 라인업 버전 번호를 조회합니다. 라인업 정보가 변경될 때마다 버전 번호가 1씩 증가합니다.</p>
+                                        
+                                        <h5>응답 예시:</h5>
+                                        <div class="json-response"><pre>8</pre></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 관리자 API -->
+                            <div id="admin-api" class="card mb-4">
+                                <div class="card-header">
+                                    <h3>🔧 관리자 API (Admin API)</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i>
+                                        관리자 API는 HTML 페이지를 반환하는 웹 인터페이스입니다.
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h5>주요 엔드포인트:</h5>
+                                        <ul>
+                                            <li><code>GET /admin</code> - 관리자 대시보드</li>
+                                            <li><code>GET /admin/players</code> - 선수 관리 페이지</li>
+                                            <li><code>GET /admin/lineup</code> - 라인업 관리 페이지</li>
+                                            <li><code>GET /admin/cheersongs</code> - 응원가 관리 페이지</li>
+                                            <li><code>POST /admin/player/{id}/batting-order</code> - 선수 타순 수정</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+
+                        <!-- 팀 코드 정보 -->
+                        <section id="team-codes" class="api-section">
+                            <h2>🏟️ 팀 코드 정보</h2>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-group">
+                                        <li class="list-group-item"><strong>LG</strong> - LG 트윈스 (LG Twins)</li>
+                                        <li class="list-group-item"><strong>KIA</strong> - KIA 타이거즈 (KIA Tigers)</li>
+                                        <li class="list-group-item"><strong>SSG</strong> - SSG 랜더스 (SSG Landers)</li>
+                                        <li class="list-group-item"><strong>LT</strong> - 롯데 자이언츠 (Lotte Giants)</li>
+                                        <li class="list-group-item"><strong>HH</strong> - 한화 이글스 (Hanwha Eagles)</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-group">
+                                        <li class="list-group-item"><strong>NC</strong> - NC 다이노스 (NC Dinos)</li>
+                                        <li class="list-group-item"><strong>OB</strong> - 두산 베어스 (Doosan Bears)</li>
+                                        <li class="list-group-item"><strong>SK</strong> - SK 와이번스 (SK Wyverns)</li>
+                                        <li class="list-group-item"><strong>HT</strong> - KT 위즈 (KT Wiz)</li>
+                                        <li class="list-group-item"><strong>WO</strong> - 키움 히어로즈 (Kiwoom Heroes)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+
+                        <!-- 참고사항 -->
+                        <section class="api-section">
+                            <h2>📝 참고사항</h2>
+                            <div class="alert alert-info">
+                                <ul class="mb-0">
+                                    <li>모든 API는 JSON 형태로 응답합니다</li>
+                                    <li>응원가 파일은 <code>/cheersongs/audio/</code> 디렉터리에 저장됩니다</li>
+                                    <li>자동 크롤링은 스케줄링되어 주기적으로 실행됩니다</li>
+                                    <li>관리자 인터페이스는 Thymeleaf 템플릿을 사용합니다</li>
+                                    <li>타순이 "0"인 선수는 라인업에서 제외됩니다</li>
+                                    <li>응원가 파일 형식: <code>{팀코드소문자}{백넘버}.mp3</code> 또는 <code>.mp4</code> (예: lg10.mp3, kia7.mp3)</li>
+                                    <li>모든 날짜는 한국 시간(KST) 기준입니다</li>
+                                </ul>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>

@@ -158,6 +158,12 @@ public class AdminController {
         return "admin/versions";
     }
 
+    @GetMapping("/api-docs")
+    public String apiDocs(Model model) {
+        model.addAttribute("baseUrl", "http://15.164.33.36:8080");
+        return "admin/api-docs";
+    }
+
     private void ensureVersionExists(String teamCode, Version.VersionType type) {
         Optional<Version> existingVersion = versionRepository.findByTeamCodeAndType(teamCode, type);
         if (!existingVersion.isPresent()) {

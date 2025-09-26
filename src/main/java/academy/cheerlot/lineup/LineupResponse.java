@@ -7,6 +7,7 @@ import java.util.List;
 public record LineupResponse(
         String updated,
         String opponent,
+        Boolean hasGameToday,
         List<PlayerResponse> players
 ) {
 }

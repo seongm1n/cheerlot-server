@@ -51,16 +51,16 @@ public class RedisDataLoader implements CommandLineRunner {
 
     private void loadTeamData() {
         List<Team> teams = List.of(
-            new Team("SS", "삼성 라이온즈", LocalDate.of(2025, 1, 1), "로딩 중..."),
-            new Team("LG", "LG 트윈스", LocalDate.of(2025, 1, 1), "로딩 중..."),
-            new Team("HH", "한화 이글스", LocalDate.of(2025, 1, 1), "로딩 중..."),
-            new Team("LT", "롯데 자이언츠", LocalDate.of(2025, 1, 1), "로딩 중..."),
-            new Team("NC", "NC 다이노스", LocalDate.of(2025, 1, 1), "로딩 중..."),
-            new Team("SK", "SSG 랜더스", LocalDate.of(2025, 1, 1), "로딩 중..."),
-            new Team("OB", "두산 베어스", LocalDate.of(2025, 1, 1), "로딩 중..."),
-            new Team("KT", "KT wiz", LocalDate.of(2025, 1, 1), "로딩 중..."),
-            new Team("WO", "키움 히어로즈", LocalDate.of(2025, 1, 1), "로딩 중..."),
-            new Team("HT", "KIA 타이거즈", LocalDate.of(2025, 1, 1), "로딩 중...")
+            new Team("SS", "삼성", LocalDate.of(2025, 1, 1), "로딩 중..."),
+            new Team("LG", "LG", LocalDate.of(2025, 1, 1), "로딩 중..."),
+            new Team("HH", "한화", LocalDate.of(2025, 1, 1), "로딩 중..."),
+            new Team("LT", "롯데", LocalDate.of(2025, 1, 1), "로딩 중..."),
+            new Team("NC", "NC", LocalDate.of(2025, 1, 1), "로딩 중..."),
+            new Team("SK", "SSG", LocalDate.of(2025, 1, 1), "로딩 중..."),
+            new Team("OB", "두산", LocalDate.of(2025, 1, 1), "로딩 중..."),
+            new Team("KT", "KT", LocalDate.of(2025, 1, 1), "로딩 중..."),
+            new Team("WO", "키움", LocalDate.of(2025, 1, 1), "로딩 중..."),
+            new Team("HT", "KIA", LocalDate.of(2025, 1, 1), "로딩 중...")
         );
 
         teamRepository.saveAll(teams);

@@ -2,6 +2,8 @@ package academy.cheerlot.lineup;
 
 import academy.cheerlot.game.Game;
 import academy.cheerlot.game.GameRepository;
+import academy.cheerlot.team.Team;
+import academy.cheerlot.team.TeamRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class ScheduleCrawlerService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final GameRepository gameRepository;
+    private final TeamRepository teamRepository;
 
     public void crawlingGameId() {
         clearExistingGames();
@@ -50,6 +53,8 @@ public class ScheduleCrawlerService {
         List<String> filteredGameIds = filterKboGameIds(todayGameIds);
         
         saveGameIds(filteredGameIds);
+        
+        updateTeamsHasGameToday(filteredGameIds);
     }
 
     private void clearExistingGames() {
@@ -151,5 +156,69 @@ public class ScheduleCrawlerService {
             
         }
         
+    }
+    
+    private void updateTeamsHasGameToday(List<String> gameIds) {
+        List<Team> allTeams = teamRepository.findAll();
+        
+        for (Team team : allTeams) {
+            team.setHasGameToday(false);
+        }
+        
+        for (String gameId : gameIds) {
+            try {
+                updateTeamGameStatus(gameId, allTeams);
+            } catch (Exception e) {
+                log.error("게임 ID {}에서 팀 정보를 가져오는 중 오류 발생: {}", gameId, e.getMessage());
+            }
+        }
+        
+        teamRepository.saveAll(allTeams);
+    }
+    
+    private void updateTeamGameStatus(String gameId, List<Team> allTeams) {
+        String previewJson = fetchPreviewData(gameId);
+        if (previewJson == null) {
+            return;
+        }
+        
+        try {
+            JsonNode rootNode = objectMapper.readTree(previewJson);
+            if (!isSuccessResponse(rootNode)) {
+                return;
+            }
+            
+            JsonNode gameInfo = rootNode.get("result").get("previewData").get("gameInfo");
+            String homeTeamCode = gameInfo.get("hCode").asText();
+            String awayTeamCode = gameInfo.get("aCode").asText();
+            
+            for (Team team : allTeams) {
+                if (homeTeamCode.equals(team.getTeamCode()) || awayTeamCode.equals(team.getTeamCode())) {
+                    team.setHasGameToday(true);
+                }
+            }
+        } catch (Exception e) {
+            log.error("게임 ID {}의 JSON 파싱 중 오류 발생: {}", gameId, e.getMessage());
+        }
+    }
+    
+    private String fetchPreviewData(String gameId) {
+        try {
+            String url = "https://api-gw.sports.naver.com/schedule/games/" + gameId + "/preview";
+            HttpEntity<?> requestEntity = createRequestEntity();
+            
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    requestEntity,
+                    String.class);
+            
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return response.getBody();
+            }
+        } catch (Exception e) {
+            log.error("프리뷰 API 요청 중 오류 발생: {}", e.getMessage());
+        }
+        return null;
     }
 }

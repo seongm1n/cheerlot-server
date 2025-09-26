@@ -59,6 +59,7 @@ public class LineupController {
         LineupResponse response = new LineupResponse(
                 lastUpdated,
                 team.getLastOpponent(),
+                team.getHasGameToday(),
                 playerResponses
         );
         

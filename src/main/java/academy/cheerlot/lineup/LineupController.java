@@ -60,6 +60,7 @@ public class LineupController {
                 lastUpdated,
                 team.getLastOpponent(),
                 team.getHasGameToday(),
+                team.getIsSeasonActive(),
                 playerResponses
         );
         

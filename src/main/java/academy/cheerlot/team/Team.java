@@ -26,6 +26,8 @@ public class Team {
     private int playerCount;
     
     private Boolean hasGameToday;
+    
+    private Boolean isSeasonActive;
 
     public Team(String teamCode, String name, LocalDate lastUpdated, String lastOpponent) {
         this.teamCode = teamCode;
@@ -34,5 +36,6 @@ public class Team {
         this.lastOpponent = lastOpponent;
         this.playerCount = 0;
         this.hasGameToday = false;
+        this.isSeasonActive = true;
     }
 }

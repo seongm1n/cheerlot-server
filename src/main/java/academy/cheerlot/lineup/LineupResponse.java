@@ -8,6 +8,7 @@ public record LineupResponse(
         String updated,
         String opponent,
         Boolean hasGameToday,
+        Boolean isSeasonActive,
         List<PlayerResponse> players
 ) {
 }

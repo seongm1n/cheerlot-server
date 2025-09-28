@@ -135,6 +135,57 @@ public class AdminController {
         return response;
     }
 
+    @PostMapping("/player/add")
+    @ResponseBody
+    public Map<String, String> addPlayer(@RequestParam String name,
+                                       @RequestParam String backNumber,
+                                       @RequestParam String position,
+                                       @RequestParam String teamCode,
+                                       @RequestParam(defaultValue = "0") String batsOrder,
+                                       @RequestParam(defaultValue = "") String batsThrows) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            String playerId = teamCode + ":" + backNumber;
+            
+            if (playerRepository.existsById(playerId)) {
+                response.put("status", "error");
+                response.put("message", "해당 팀에 같은 등번호를 가진 선수가 이미 존재합니다.");
+                return response;
+            }
+            
+            Player newPlayer = new Player(name, backNumber, position, teamCode, batsOrder);
+            newPlayer.setBatsThrows(batsThrows);
+            playerRepository.save(newPlayer);
+            
+            response.put("status", "success");
+            response.put("message", "선수가 성공적으로 추가되었습니다.");
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "선수 추가 중 오류가 발생했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    @PostMapping("/player/{id}/delete")
+    @ResponseBody
+    public Map<String, String> deletePlayer(@PathVariable String id) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            if (playerRepository.existsById(id)) {
+                playerRepository.deleteById(id);
+                response.put("status", "success");
+                response.put("message", "선수가 성공적으로 삭제되었습니다.");
+            } else {
+                response.put("status", "error");
+                response.put("message", "선수를 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "선수 삭제 중 오류가 발생했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
     @GetMapping("/versions")
     public String versions(Model model) {
         List<Team> teams = (List<Team>) teamRepository.findAll();

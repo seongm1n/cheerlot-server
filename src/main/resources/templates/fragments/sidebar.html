@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="sidebar" class="sidebar">
+        <div class="brand">
+            <h4><i class="bi bi-trophy"></i> CheerLot</h4>
+            <small class="text-muted">관리자 페이지</small>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link" th:classappend="${currentPage == 'dashboard' ? 'active' : ''}" href="/admin">
+                <i class="bi bi-speedometer2"></i> 대시보드
+            </a>
+            <a class="nav-link" th:classappend="${currentPage == 'players' ? 'active' : ''}" href="/admin/players">
+                <i class="bi bi-people"></i> 전체 선수 명단
+            </a>
+            <a class="nav-link" th:classappend="${currentPage == 'lineup' ? 'active' : ''}" href="/admin/lineup">
+                <i class="bi bi-list-ol"></i> 선발 라인업
+            </a>
+            <a class="nav-link" th:classappend="${currentPage == 'cheersongs' ? 'active' : ''}" href="/admin/cheersongs">
+                <i class="bi bi-music-note"></i> 응원가 관리
+            </a>
+            <a class="nav-link" th:classappend="${currentPage == 'versions' ? 'active' : ''}" href="/admin/versions">
+                <i class="bi bi-git"></i> 버전 관리
+            </a>
+            <a class="nav-link" th:classappend="${currentPage == 'api-docs' ? 'active' : ''}" href="/admin/api-docs">
+                <i class="bi bi-book"></i> API 명세서
+            </a>
+        </nav>
+    </div>
+</body>
+</html>

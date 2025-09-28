@@ -103,7 +103,12 @@
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1><i class="bi bi-people"></i> 전체 선수 명단</h1>
-            <span class="badge bg-primary" th:text="'총 ' + ${#lists.size(players)} + '명'">총 0명</span>
+            <div>
+                <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addPlayerModal">
+                    <i class="bi bi-plus-circle"></i> 선수 추가
+                </button>
+                <span class="badge bg-primary" th:text="'총 ' + ${#lists.size(players)} + '명'">총 0명</span>
+            </div>
         </div>
 
         <div class="card mb-4">
@@ -184,10 +189,15 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary play-cheersong-btn" 
+                                    <button class="btn btn-sm btn-outline-primary me-1 play-cheersong-btn" 
                                             th:data-filename="${player.teamCode.toLowerCase() + player.backNumber + '.mp3'}"
                                             th:disabled="${!cheerSongFiles.containsKey(player.teamCode.toLowerCase() + player.backNumber + '.mp3')}">
                                         <i class="bi bi-play"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-player-btn" 
+                                            th:data-player-id="${player.playerId}"
+                                            th:data-player-name="${player.name}">
+                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -196,6 +206,98 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 선수 추가 모달 -->
+    <div class="modal fade" id="addPlayerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle"></i> 선수 추가</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPlayerForm">
+                        <div class="mb-3">
+                            <label for="playerName" class="form-label">선수명 *</label>
+                            <input type="text" class="form-control" id="playerName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="backNumber" class="form-label">등번호 *</label>
+                            <input type="number" class="form-control" id="backNumber" name="backNumber" min="1" max="99" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="position" class="form-label">포지션 *</label>
+                            <select class="form-select" id="position" name="position" required>
+                                <option value="">포지션 선택</option>
+                                <option value="투수">투수</option>
+                                <option value="포수">포수</option>
+                                <option value="1루수">1루수</option>
+                                <option value="2루수">2루수</option>
+                                <option value="3루수">3루수</option>
+                                <option value="유격수">유격수</option>
+                                <option value="좌익수">좌익수</option>
+                                <option value="중견수">중견수</option>
+                                <option value="우익수">우익수</option>
+                                <option value="지명타자">지명타자</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="teamCode" class="form-label">팀 *</label>
+                            <select class="form-select" id="teamCode" name="teamCode" required>
+                                <option value="">팀 선택</option>
+                                <option th:each="team : ${teams}" th:value="${team.teamCode}" th:text="${team.name}">팀명</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="batsThrows" class="form-label">타석/투구</label>
+                            <select class="form-select" id="batsThrows" name="batsThrows">
+                                <option value="">선택 안함</option>
+                                <option value="우타/우투">우타/우투</option>
+                                <option value="좌타/좌투">좌타/좌투</option>
+                                <option value="우타/좌투">우타/좌투</option>
+                                <option value="좌타/우투">좌타/우투</option>
+                                <option value="양타/우투">양타/우투</option>
+                                <option value="양타/좌투">양타/좌투</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="batsOrder" class="form-label">타순</label>
+                            <input type="number" class="form-control" id="batsOrder" name="batsOrder" min="0" max="9" value="0">
+                            <small class="form-text text-muted">0은 후보선수를 의미합니다.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-success" onclick="addPlayer()">
+                        <i class="bi bi-plus-circle"></i> 추가
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 선수 삭제 확인 모달 -->
+    <div class="modal fade" id="deletePlayerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger"></i> 선수 삭제 확인</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong id="deletePlayerName"></strong> 선수를 정말 삭제하시겠습니까?</p>
+                    <p class="text-danger"><small>이 작업은 되돌릴 수 없습니다.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="bi bi-trash"></i> 삭제
+                    </button>
                 </div>
             </div>
         </div>
@@ -255,13 +357,74 @@
             });
         }
 
-        // Add event listener for play buttons
+        function addPlayer() {
+            const form = document.getElementById('addPlayerForm');
+            const formData = new FormData(form);
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            fetch('/admin/player/add', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                showToast(data.message, data.status === 'success' ? 'success' : 'danger');
+                if (data.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('addPlayerModal')).hide();
+                    form.reset();
+                    setTimeout(() => location.reload(), 1000);
+                }
+            })
+            .catch(error => {
+                showToast('선수 추가 중 오류가 발생했습니다.', 'danger');
+                console.error('Error:', error);
+            });
+        }
+
+        function deletePlayer(playerId, playerName) {
+            document.getElementById('deletePlayerName').textContent = playerName;
+            document.getElementById('confirmDeleteBtn').onclick = function() {
+                fetch(`/admin/player/${playerId}/delete`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    showToast(data.message, data.status === 'success' ? 'success' : 'danger');
+                    if (data.status === 'success') {
+                        bootstrap.Modal.getInstance(document.getElementById('deletePlayerModal')).hide();
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                })
+                .catch(error => {
+                    showToast('선수 삭제 중 오류가 발생했습니다.', 'danger');
+                    console.error('Error:', error);
+                });
+            };
+        }
+
+        // Add event listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Play button event listener
             document.addEventListener('click', function(e) {
                 if (e.target.closest('.play-cheersong-btn')) {
                     const button = e.target.closest('.play-cheersong-btn');
                     const filename = button.dataset.filename;
                     playCheerSong(filename);
+                }
+                
+                // Delete button event listener
+                if (e.target.closest('.delete-player-btn')) {
+                    const button = e.target.closest('.delete-player-btn');
+                    const playerId = button.dataset.playerId;
+                    const playerName = button.dataset.playerName;
+                    deletePlayer(playerId, playerName);
+                    
+                    const deleteModal = new bootstrap.Modal(document.getElementById('deletePlayerModal'));
+                    deleteModal.show();
                 }
             });
         });

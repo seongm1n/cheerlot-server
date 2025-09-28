@@ -146,6 +146,22 @@
                                                       th:text="${team.hasGameToday} ? '경기있음' : '경기없음'">경기상태</span>
                                             </div>
                                         </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="text-muted">시즌 상태</small>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input season-toggle" 
+                                                       type="checkbox" 
+                                                       th:checked="${team.isSeasonActive != null && team.isSeasonActive}"
+                                                       th:data-team-code="${team.teamCode}"
+                                                       th:data-team-name="${team.name}"
+                                                       th:id="'seasonToggle_' + ${team.teamCode}">
+                                                <label class="form-check-label" 
+                                                       th:for="'seasonToggle_' + ${team.teamCode}"
+                                                       th:text="${team.isSeasonActive != null && team.isSeasonActive ? '활성' : '비활성'}">
+                                                    상태
+                                                </label>
+                                            </div>
+                                        </div>
                                         <p class="text-muted small mb-2">
                                             <i class="bi bi-calendar"></i> 최근 업데이트: 
                                             <span th:text="${team.lastUpdated != null ? #temporals.format(team.lastUpdated, 'MM-dd') : 'N/A'}">N/A</span>
@@ -203,5 +219,68 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSeasonActive(teamCode, teamName, toggle) {
+            fetch(`/admin/team/${teamCode}/season-active`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const label = toggle.nextElementSibling;
+                    label.textContent = data.isActive === 'true' ? '활성' : '비활성';
+                    showToast(data.message, 'success');
+                } else {
+                    toggle.checked = !toggle.checked;
+                    showToast(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                toggle.checked = !toggle.checked;
+                showToast('시즌 상태 변경 중 오류가 발생했습니다.', 'danger');
+                console.error('Error:', error);
+            });
+        }
+
+        function showToast(message, type) {
+            const toastContainer = document.querySelector('.toast-container') || createToastContainer();
+            const toastId = 'toast_' + Date.now();
+            
+            const toastHTML = `
+                <div id="${toastId}" class="toast ${type === 'success' ? 'bg-success' : 'bg-danger'} text-white" role="alert">
+                    <div class="toast-header">
+                        <strong class="me-auto">알림</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">${message}</div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+            const toast = new bootstrap.Toast(document.getElementById(toastId));
+            toast.show();
+            
+            setTimeout(() => {
+                document.getElementById(toastId)?.remove();
+            }, 5000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('season-toggle')) {
+                    const teamCode = e.target.dataset.teamCode;
+                    const teamName = e.target.dataset.teamName;
+                    toggleSeasonActive(teamCode, teamName, e.target);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -271,6 +271,32 @@ public class AdminController {
         return response;
     }
 
+    @PostMapping("/team/{teamCode}/season-active")
+    @ResponseBody
+    public Map<String, String> toggleSeasonActive(@PathVariable String teamCode) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            Team team = teamRepository.findById(teamCode).orElse(null);
+            if (team != null) {
+                Boolean currentStatus = team.getIsSeasonActive();
+                team.setIsSeasonActive(currentStatus == null ? true : !currentStatus);
+                teamRepository.save(team);
+                
+                String status = team.getIsSeasonActive() ? "활성" : "비활성";
+                response.put("status", "success");
+                response.put("message", team.getName() + " 팀의 시즌 상태가 " + status + "로 변경되었습니다.");
+                response.put("isActive", team.getIsSeasonActive().toString());
+            } else {
+                response.put("status", "error");
+                response.put("message", "팀을 찾을 수 없습니다.");
+            }
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "시즌 상태 변경 중 오류가 발생했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
     private List<Player> getPlayersWithCheersongs() {
         Map<String, String> cheerSongFiles = getCheersongFileMap();
         return ((List<Player>) playerRepository.findAll()).stream()

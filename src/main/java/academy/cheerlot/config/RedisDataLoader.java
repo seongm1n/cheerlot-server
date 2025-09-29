@@ -201,7 +201,7 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("황영묵", "95", "교체 선수", "HH", "0"),
                 new Player("손아섭", "31", "교체 선수", "HH", "0"),
                 new Player("최원준", "105", "교체 선수", "HH", "0"),
-                new Player("김해찬", "95", "교체 선수", "HH", "0")
+                new Player("김해찬", "118", "교체 선수", "HH", "0")
         );
         playerRepository.saveAll(hhPlayers);
         log.info("👥 Loaded {} players for 한화 이글스", hhPlayers.size());

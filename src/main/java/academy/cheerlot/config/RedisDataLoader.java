@@ -522,7 +522,6 @@ public class RedisDataLoader implements CommandLineRunner {
                 new Player("정현창", "12", "교체 선수", "HT", "0"),
                 new Player("박헌", "67", "교체 선수", "HT", "0"),
                 new Player("예진원", "8", "교체 선수", "HT", "0"),
-                new Player("이영재", "9", "교체 선수", "HT", "0"),
                 new Player("한승연", "37", "교체 선수", "HT", "0")
         );
         playerRepository.saveAll(htPlayers);

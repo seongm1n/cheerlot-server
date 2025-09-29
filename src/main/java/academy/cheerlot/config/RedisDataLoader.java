@@ -106,11 +106,16 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("이진용", "117", "교체 선수", "SS", "0"),
             new Player("이창용", "50", "교체 선수", "SS", "0"),
             new Player("이해승", "56", "교체 선수", "SS", "0"),
-            new Player("이현준", "118", "교체 선수", "SS", "0"),
             new Player("전병우", "34", "교체 선수", "SS", "0"),
             new Player("차승준", "35", "교체 선수", "SS", "0"),
             new Player("함수호", "40", "교체 선수", "SS", "0"),
-            new Player("홍현빈", "63", "교체 선수", "SS", "0")
+            new Player("홍현빈", "63", "교체 선수", "SS", "0"),
+                new Player("조민성", "132", "교체 선수", "SS", "0"),
+                new Player("강준서", "105", "교체 선수", "SS", "0"),
+                new Player("주한울", "104", "교체 선수", "SS", "0"),
+                new Player("김상민", "107", "교체 선수", "SS", "0"),
+                new Player("차동영", "106", "교체 선수", "SS", "0"),
+                new Player("박진우", "67", "교체 선수", "SS", "0")
         );
         playerRepository.saveAll(ssPlayers);
         log.info("👥 Loaded {} players for 삼성 라이온즈", ssPlayers.size());
@@ -123,7 +128,6 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("김성우", "44", "교체 선수", "LG", "0"),
             new Player("김성진", "36", "교체 선수", "LG", "0"),
             new Player("김주성", "5", "교체 선수", "LG", "0"),
-            new Player("김준태", "47", "교체 선수", "LG", "0"),
             new Player("김현수", "22", "교체 선수", "LG", "0"),
             new Player("김현종", "66", "교체 선수", "LG", "0"),
             new Player("문보경", "2", "교체 선수", "LG", "0"),
@@ -189,13 +193,15 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("최인호", "41", "교체 선수", "HH", "0"),
             new Player("최재훈", "13", "교체 선수", "HH", "0"),
             new Player("최준서", "94", "교체 선수", "HH", "0"),
-            new Player("플로리얼", "34", "교체 선수", "HH", "0"),
             new Player("하주석", "16", "교체 선수", "HH", "0"),
             new Player("한경빈", "6", "교체 선수", "HH", "0"),
             new Player("한지윤", "67", "교체 선수", "HH", "0"),
             new Player("허관회", "12", "교체 선수", "HH", "0"),
             new Player("허인서", "59", "교체 선수", "HH", "0"),
-            new Player("황영묵", "95", "교체 선수", "HH", "0")
+            new Player("황영묵", "95", "교체 선수", "HH", "0"),
+                new Player("손아섭", "31", "교체 선수", "HH", "0"),
+                new Player("최원준", "105", "교체 선수", "HH", "0"),
+                new Player("김해찬", "95", "교체 선수", "HH", "0")
         );
         playerRepository.saveAll(hhPlayers);
         log.info("👥 Loaded {} players for 한화 이글스", hhPlayers.size());
@@ -221,7 +227,6 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("배인혁", "127", "교체 선수", "LT", "0"),
             new Player("백두산", "62", "교체 선수", "LT", "0"),
             new Player("레이예스", "29", "교체 선수", "LT", "0"),
-            new Player("서동욱", "106", "교체 선수", "LT", "0"),
             new Player("손성빈", "28", "교체 선수", "LT", "0"),
             new Player("손호영", "33", "교체 선수", "LT", "0"),
             new Player("신윤후", "3", "교체 선수", "LT", "0"),
@@ -245,7 +250,8 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("최민규", "105", "교체 선수", "LT", "0"),
             new Player("최항", "14", "교체 선수", "LT", "0"),
             new Player("한승현", "35", "교체 선수", "LT", "0"),
-            new Player("한태양", "6", "교체 선수", "LT", "0")
+            new Player("한태양", "6", "교체 선수", "LT", "0"),
+                new Player("황성빈", "0", "교체 선수", "LT", "0")
         );
         playerRepository.saveAll(ltPlayers);
         log.info("👥 Loaded {} players for 롯데 자이언츠", ltPlayers.size());
@@ -273,9 +279,7 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("박영빈", "39", "교체 선수", "NC", "0"),
             new Player("박인우", "112", "교체 선수", "NC", "0"),
             new Player("박주찬", "113", "교체 선수", "NC", "0"),
-            new Player("서준교", "116", "교체 선수", "NC", "0"),
             new Player("서호철", "5", "교체 선수", "NC", "0"),
-            new Player("손아섭", "31", "교체 선수", "NC", "0"),
             new Player("송승환", "8", "교체 선수", "NC", "0"),
             new Player("신민우", "117", "교체 선수", "NC", "0"),
             new Player("신성호", "118", "교체 선수", "NC", "0"),
@@ -288,15 +292,16 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("유재현", "125", "교체 선수", "NC", "0"),
             new Player("이한", "122", "교체 선수", "NC", "0"),
             new Player("장창훈", "93", "교체 선수", "NC", "0"),
-            new Player("정현창", "52", "교체 선수", "NC", "0"),
             new Player("조창연", "127", "교체 선수", "NC", "0"),
-            new Player("조현민", "128", "교체 선수", "NC", "0"),
             new Player("조효원", "129", "교체 선수", "NC", "0"),
             new Player("천재환", "23", "교체 선수", "NC", "0"),
             new Player("최보성", "130", "교체 선수", "NC", "0"),
             new Player("최정원", "14", "교체 선수", "NC", "0"),
             new Player("한석현", "33", "교체 선수", "NC", "0"),
-            new Player("한재환", "35", "교체 선수", "NC", "0")
+            new Player("한재환", "35", "교체 선수", "NC", "0"),
+                new Player("홍종표", "4", "교체 선수", "NC", "0"),
+                new Player("최원준", "31", "교체 선수", "NC", "0"),
+                new Player("이우성", "55", "교체 선수", "NC", "0")
         );
         playerRepository.saveAll(ncPlayers);
         log.info("👥 Loaded {} players for NC 다이노스", ncPlayers.size());
@@ -318,7 +323,6 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("박성한", "2", "교체 선수", "SK", "0"),
             new Player("박정빈", "58", "교체 선수", "SK", "0"),
             new Player("박지환", "1", "교체 선수", "SK", "0"),
-            new Player("백준서", "69", "교체 선수", "SK", "0"),
             new Player("석정우", "52", "교체 선수", "SK", "0"),
             new Player("신범수", "25", "교체 선수", "SK", "0"),
             new Player("안상현", "10", "교체 선수", "SK", "0"),
@@ -333,17 +337,16 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("정준재", "3", "교체 선수", "SK", "0"),
             new Player("조형우", "20", "교체 선수", "SK", "0"),
             new Player("채현우", "15", "교체 선수", "SK", "0"),
-            new Player("최민창", "53", "교체 선수", "SK", "0"),
-            new Player("최상민", "23", "교체 선수", "SK", "0"),
             new Player("최윤석", "94", "교체 선수", "SK", "0"),
             new Player("최정", "14", "교체 선수", "SK", "0"),
             new Player("최준우", "7", "교체 선수", "SK", "0"),
             new Player("최지훈", "54", "교체 선수", "SK", "0"),
             new Player("하재훈", "13", "교체 선수", "SK", "0"),
             new Player("한유섬", "35", "교체 선수", "SK", "0"),
-            new Player("허진", "67", "교체 선수", "SK", "0"),
             new Player("현원회", "8", "교체 선수", "SK", "0"),
-            new Player("홍대인", "97", "교체 선수", "SK", "0")
+            new Player("홍대인", "97", "교체 선수", "SK", "0"),
+                new Player("김수윤", "4", "교체 선수", "SK", "0"),
+                new Player("장현진", "49", "교체 선수", "SK", "0")
         );
         playerRepository.saveAll(skPlayers);
         log.info("👥 Loaded {} players for SSG 랜더스", skPlayers.size());
@@ -357,7 +360,6 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("김동준", "48", "교체 선수", "OB", "0"),
             new Player("김민석", "2", "교체 선수", "OB", "0"),
             new Player("김민혁", "10", "교체 선수", "OB", "0"),
-            new Player("김성재", "116", "교체 선수", "OB", "0"),
             new Player("김인태", "33", "교체 선수", "OB", "0"),
             new Player("김재환", "32", "교체 선수", "OB", "0"),
             new Player("김준상", "94", "교체 선수", "OB", "0"),
@@ -375,16 +377,16 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("이선우", "24", "교체 선수", "OB", "0"),
             new Player("이유찬", "13", "교체 선수", "OB", "0"),
             new Player("임종성", "3", "교체 선수", "OB", "0"),
-            new Player("장규빈", "44", "교체 선수", "OB", "0"),
             new Player("장승현", "22", "교체 선수", "OB", "0"),
             new Player("전다민", "9", "교체 선수", "OB", "0"),
             new Player("정수빈", "31", "교체 선수", "OB", "0"),
             new Player("조수행", "51", "교체 선수", "OB", "0"),
-            new Player("천현재", "103", "교체 선수", "OB", "0"),
+            new Player("천현재", "96", "교체 선수", "OB", "0"),
             new Player("추재현", "36", "교체 선수", "OB", "0"),
             new Player("케이브", "8", "교체 선수", "OB", "0"),
-            new Player("홍성호", "34", "교체 선수", "OB", "0")
-        );
+            new Player("홍성호", "34", "교체 선수", "OB", "0"),
+                new Player("안재석", "62", "교체 선수", "OB", "0")
+                );
         playerRepository.saveAll(obPlayers);
         log.info("👥 Loaded {} players for 두산 베어스", obPlayers.size());
 
@@ -400,15 +402,11 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("김상수", "7", "교체 선수", "KT", "0"),
             new Player("김준태", "44", "교체 선수", "KT", "0"),
             new Player("김철호", "9", "교체 선수", "KT", "0"),
-            new Player("로하스", "3", "교체 선수", "KT", "0"),
-            new Player("문상준", "113", "교체 선수", "KT", "0"),
             new Player("문상철", "24", "교체 선수", "KT", "0"),
             new Player("박민석", "2", "교체 선수", "KT", "0"),
             new Player("박민석", "104", "교체 선수", "KT", "0"),
-            new Player("박태완", "58", "교체 선수", "KT", "0"),
             new Player("배정대", "27", "교체 선수", "KT", "0"),
             new Player("송민섭", "28", "교체 선수", "KT", "0"),
-            new Player("신범준", "62", "교체 선수", "KT", "0"),
             new Player("안치영", "8", "교체 선수", "KT", "0"),
             new Player("안현민", "23", "교체 선수", "KT", "0"),
             new Player("오서진", "25", "교체 선수", "KT", "0"),
@@ -416,22 +414,18 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("오재일", "36", "교체 선수", "KT", "0"),
             new Player("유준규", "67", "교체 선수", "KT", "0"),
             new Player("윤준혁", "35", "교체 선수", "KT", "0"),
-            new Player("이승준", "109", "교체 선수", "KT", "0"),
-            new Player("이승현", "96", "교체 선수", "KT", "0"),
-            new Player("이용현", "106", "교체 선수", "KT", "0"),
-            new Player("이정환", "103", "교체 선수", "KT", "0"),
             new Player("이정훈", "33", "교체 선수", "KT", "0"),
             new Player("이호연", "34", "교체 선수", "KT", "0"),
             new Player("장성우", "22", "교체 선수", "KT", "0"),
             new Player("장준원", "56", "교체 선수", "KT", "0"),
             new Player("장진혁", "51", "교체 선수", "KT", "0"),
-            new Player("정영웅", "108", "교체 선수", "KT", "0"),
             new Player("조대현", "42", "교체 선수", "KT", "0"),
             new Player("천성호", "14", "교체 선수", "KT", "0"),
-            new Player("최동희", "100", "교체 선수", "KT", "0"),
             new Player("최성민", "31", "교체 선수", "KT", "0"),
             new Player("허경민", "13", "교체 선수", "KT", "0"),
-            new Player("황재균", "10", "교체 선수", "KT", "0")
+            new Player("황재균", "10", "교체 선수", "KT", "0"),
+                new Player("김건형", "0", "교체 선수", "KT", "0"),
+                new Player("스티븐슨", "3", "교체 선수", "KT", "0")
         );
         playerRepository.saveAll(ktPlayers);
         log.info("👥 Loaded {} players for KT wiz", ktPlayers.size());
@@ -460,7 +454,6 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("송성문", "24", "교체 선수", "WO", "0"),
             new Player("송지후", "86", "교체 선수", "WO", "0"),
             new Player("심휘윤", "91", "교체 선수", "WO", "0"),
-            new Player("양경식", "64", "교체 선수", "WO", "0"),
             new Player("양현종", "70", "교체 선수", "WO", "0"),
             new Player("어준서", "92", "교체 선수", "WO", "0"),
             new Player("여동욱", "93", "교체 선수", "WO", "0"),
@@ -473,7 +466,6 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("이원석", "17", "교체 선수", "WO", "0"),
             new Player("이재상", "5", "교체 선수", "WO", "0"),
             new Player("이주형", "2", "교체 선수", "WO", "0"),
-            new Player("이주형", "58", "교체 선수", "WO", "0"),
             new Player("이형종", "36", "교체 선수", "WO", "0"),
             new Player("임병욱", "6", "교체 선수", "WO", "0"),
             new Player("임지열", "29", "교체 선수", "WO", "0"),
@@ -482,7 +474,9 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("주성원", "25", "교체 선수", "WO", "0"),
             new Player("최주환", "53", "교체 선수", "WO", "0"),
             new Player("카디네스", "4", "교체 선수", "WO", "0"),
-            new Player("푸이그", "66", "교체 선수", "WO", "0")
+                new Player("김리안", "37", "교체 선수", "WO", "0"),
+                new Player("이주형", "58", "교체 선수", "WO", "0"),
+                new Player("스톤 개렛", "26", "교체 선수", "WO", "0")
         );
         playerRepository.saveAll(woPlayers);
         log.info("👥 Loaded {} players for 키움 히어로즈", woPlayers.size());
@@ -512,19 +506,24 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("오정환", "7", "교체 선수", "HT", "0"),
             new Player("위즈덤", "45", "교체 선수", "HT", "0"),
             new Player("윤도현", "9", "교체 선수", "HT", "0"),
-            new Player("이상준", "44", "교체 선수", "HT", "0"),
-            new Player("이우성", "25", "교체 선수", "HT", "0"),
             new Player("이준범", "11", "교체 선수", "HT", "0"),
             new Player("이창진", "8", "교체 선수", "HT", "0"),
             new Player("정해원", "64", "교체 선수", "HT", "0"),
             new Player("주효상", "22", "교체 선수", "HT", "0"),
-            new Player("최원준", "16", "교체 선수", "HT", "0"),
             new Player("최정용", "23", "교체 선수", "HT", "0"),
             new Player("최형우", "34", "교체 선수", "HT", "0"),
             new Player("한승택", "26", "교체 선수", "HT", "0"),
             new Player("한준수", "55", "교체 선수", "HT", "0"),
-            new Player("홍종표", "6", "교체 선수", "HT", "0"),
-            new Player("황대인", "52", "교체 선수", "HT", "0")
+            new Player("황대인", "52", "교체 선수", "HT", "0"),
+                new Player("김선우", "16", "교체 선수", "HT", "0"),
+                new Player("신명승", "42", "교체 선수", "HT", "0"),
+                new Player("박상준", "5", "교체 선수", "HT", "0"),
+                new Player("장시현", "11", "교체 선수", "HT", "0"),
+                new Player("정현창", "12", "교체 선수", "HT", "0"),
+                new Player("박헌", "67", "교체 선수", "HT", "0"),
+                new Player("예진원", "8", "교체 선수", "HT", "0"),
+                new Player("이영재", "9", "교체 선수", "HT", "0"),
+                new Player("한승연", "37", "교체 선수", "HT", "0")
         );
         playerRepository.saveAll(htPlayers);
         log.info("👥 Loaded {} players for KIA 타이거즈", htPlayers.size());
@@ -566,11 +565,15 @@ public class RedisDataLoader implements CommandLineRunner {
             new CheerSong("LG:55:lg55", "기본응원가", "LG의 김범석\nLG의 김범석\nLG의 승리를 위하여\n날려라 김범석", "lg55.mp3", "LG:55"),
             new CheerSong("LG:22:lg22", "기본응원가", "오! LG의 김현수 x2\n오! 승리를 위하여\n오! 힘차게 날려라\n오! LG의 김현수 x2\n오! 승리를 위하여\n무! 적! L! G! 김! 현! 수!", "lg22.mp3", "LG:22"),
             new CheerSong("LG:2:lg2", "기본응원가", "무적LG 승리 위해 날려버려라\nLG의 문보경 (안타!) LG의 문보경 (홈런!)", "lg2.mp3", "LG:2"),
-            new CheerSong("LG:8:lg8", "기본응원가", "무적LG 오 문성주 날려버려라\n무적LG 오 문성주 날려버려라\n랄랄라라 랄랄라라 랄랄랄라라 (헤이!)\n랄랄라라 랄랄라라 랄랄랄라라 (헤이!)", "lg8.mp3", "LG:8"),
-            new CheerSong("LG:53:lg53", "기본응원가", "문정빈 힘차게 날아올라봐\nLG의 승리 위하여\n문정빈 넌 빛나고 있어\n문정빈 힘차게 날아올라봐\nLG의 승리 위하여\n문정빈 주인공은 바로 너!\n문!정!빈!", "lg53.mp3", "LG:53"),
-            new CheerSong("LG:27:lg27", "기본응원가", "시원하게 (쏴) 쏘아올려 (쏴)\n무적LG 박동원 (안타!)\n승리위해 저 끝까지\n날려버려 박동원 (홈런!)", "lg27.mp3", "LG:27"),
+                new CheerSong("LG:2:lg2", "기본응원가", "오오오 문보경!\nLG의 문보경 (안타!)\nLG의 문보경 문보경\n안타를 날려라 (안타!)", "lg2(2).mp3", "LG:2"),
+                new CheerSong("LG:8:lg8", "기본응원가", "무적LG 오 문성주 날려버려라\n무적LG 오 문성주 날려버려라\n랄랄라라 랄랄라라 랄랄랄라라 (헤이!)\n랄랄라라 랄랄라라 랄랄랄라라 (헤이!)", "lg8.mp3", "LG:8"),
+                new CheerSong("LG:8:lg8", "기본응원가", "무적 LG 문성주\n무적 LG 문성주\n오오오오\\nLG의 문성주 날려버려라\n무적 LG 문성주\n무적 LG 문성주\n오오오오\nLG의 문성주 날려버려라\n 오오오오오\n문! 성! 주!", "lg8(2).mp3", "LG:8"),
+                new CheerSong("LG:53:lg53", "기본응원가", "문정빈 힘차게 날아올라봐\nLG의 승리 위하여\n문정빈 넌 빛나고 있어\n문정빈 힘차게 날아올라봐\nLG의 승리 위하여\n문정빈 주인공은 바로 너!\n문!정!빈!", "lg53.mp3", "LG:53"),
+                new CheerSong("LG:64:lg64", "기본응원가", "LG 박관우\n무적LG의 박관우\n무적 LG\n승리 위하여\n워어어어어어", "lg64.mp3", "LG:64"),
+                new CheerSong("LG:27:lg27", "기본응원가", "시원하게 (쏴) 쏘아올려 (쏴)\n무적LG 박동원 (안타!)\n승리위해 저 끝까지\n날려버려 박동원 (홈런!)", "lg27.mp3", "LG:27"),
             new CheerSong("LG:17:lg17", "기본응원가", "날려버려 안타 박해민\n오오오오오 박해민\n무!적!L!G! 박!해!민!", "lg17.mp3", "LG:17"),
-            new CheerSong("LG:14:lg14", "기본응원가", "LG의 송찬의(안타!) LG의 송찬의(홈런!)\n무적LG 승리위해 날려버려라", "lg14.mp3", "LG:14"),
+                new CheerSong("LG:5:lg5", "기본응원가", "오 LG 김주성\n오 LG 김주성\n오 LG 김주성\n워어어어어\n힘차게 달려가라\nLG 김주성", "lg5.mp3", "LG:5"),
+                new CheerSong("LG:14:lg14", "기본응원가", "LG의 송찬의(안타!) LG의 송찬의(홈런!)\n무적LG 승리위해 날려버려라", "lg14.mp3", "LG:14"),
             new CheerSong("LG:4:lg4", "기본응원가", "날려버려 날려버려 안!타!신!민!재!", "lg4.mp3", "LG:4"),
             new CheerSong("LG:15:lg15", "기본응원가", "날려버려 LG의 안익훈\n승리위해 힘차게 날려라\n날려버려 LG의 안익훈 승리를 위해\n날려버려 LG의 안익훈\n승리위해 힘차게 날려라\n날려버려 LG의 안익훈\n무!적!L!G! 안!익!훈!", "lg15.mp3", "LG:15"),
             new CheerSong("LG:23:lg23(1)", "기본응원가", "무적LG의 오스틴 딘! 날려버려라 오! 스! 틴! 딘!", "lg23(1).mp3", "LG:23"),
@@ -598,7 +601,9 @@ public class RedisDataLoader implements CommandLineRunner {
             new CheerSong("HH:34:hh34", "기본응원가", "플로리얼 워어어어 한화의 플!로!리!얼! 워어 어어어", "hh34.mp3", "HH:34"),
             new CheerSong("HH:16:hh16", "기본응원가", "하주석 유후 하주석 승리를 위해 함께 외쳐라\n하주석 유후 하주석 승리를 위해 함께 외쳐라 워어\n하!주!석!", "hh16.mp3", "HH:16"),
             new CheerSong("HH:95:hh95", "기본응원가", "한화의 황영묵 날려버려라 한화의 승리를 원하잖아\n최강 한화의 승리를 위해 날려라 묵이\n황!영!묵!", "hh95.mp3", "HH:95"),
-            new CheerSong("LT:2:lt2", "기본응원가", "롯데의 고승민 안타 안타 롯데의 고승민 안타 안타\n워어어 워어어 워어어어\n워어어 워어어 워어어어\n롯데의 고승민 안타 안타", "lt2.mp3", "LT:2"),
+                new CheerSong("HH:50:hh50", "기본응원가", "한화의 이원석\n승리를 위하여\n치고 달려(우!아!우!아)\n이원석 여기서\n멈추지 않을거야\n간!다! 와다다다다다다다", "hh50.mp3", "HH:50"),
+                new CheerSong("HH:0:hh0", "기본응원가", "리베라토 워어어어\n한화의 리!베!라!토!\n워어 어어어", "hh0.mp3", "HH:0"),
+                new CheerSong("LT:2:lt2", "기본응원가", "롯데의 고승민 안타 안타 롯데의 고승민 안타 안타\n워어어 워어어 워어어어\n워어어 워어어 워어어어\n롯데의 고승민 안타 안타", "lt2.mp3", "LT:2"),
             new CheerSong("LT:50:lt50", "기본응원가", "롯데 자이언츠 김동혁 오오오오 김동혁\n롯데 자이언츠 김동혁 롯데 김동혁 오 오오오\n(안타! 김!동!혁!) X2", "lt50.mp3", "LT:50"),
             new CheerSong("LT:16:lt16", "기본응원가", "롯데의 김민성 오오 오오오 오오오 ×4", "lt16.mp3", "LT:16"),
             new CheerSong("LT:51:lt51", "기본응원가", "자이언츠! 나승엽 쌔리라! 안타 안타\n자이언츠! 나승엽 오오오오 오오오 ×2", "lt51.mp3", "LT:51"),
@@ -619,7 +624,8 @@ public class RedisDataLoader implements CommandLineRunner {
             new CheerSong("LT:5:lt5", "기본응원가", "오오오 오오 오오오\n오 롯데 롯데 조세진\n오오오 오오 오오오\n오 롯데 롯데 조세진 x2", "lt5.mp3", "LT:5"),
             new CheerSong("LT:14:lt14", "기본응원가", "롯데의 최항 오오오오오 오오오\n최강롯데 자이언츠 최항 안타 ×4", "lt14.mp3", "LT:14"),
             new CheerSong("LT:6:lt6", "기본응원가", "롯데 자이언츠 한태양 안타\n오오 오오오오 오오오\n롯데 자이언츠 한태양 안타\n오오오 오 오오오 x2", "lt6.mp3", "LT:6"),
-            new CheerSong("NC:36:nc36", "기본응원가", "다이노스 오 권희동NC 오! 권희동 오! 권희동 권희동 안타 NC 오! 권희동 오! 권희동 오 오오오 권! 희! 동!NC 오! 권희동 오! 권희동 권희동 안타 NC 오! 권희동 오! 권희동 오 오오오 권! 희! 동!", "nc36.mp3", "NC:36"),
+                new CheerSong("LT:60:lt60", "기본응원가", "오 롯데의 박찬형\n안타 안타 안타 안타\n오 롯데의 박찬형\n박!찬!형!", "lt60.mp3", "LT:60"),
+                new CheerSong("NC:36:nc36", "기본응원가", "다이노스 오 권희동NC 오! 권희동 오! 권희동 권희동 안타 NC 오! 권희동 오! 권희동 오 오오오 권! 희! 동!NC 오! 권희동 오! 권희동 권희동 안타 NC 오! 권희동 오! 권희동 오 오오오 권! 희! 동!", "nc36.mp3", "NC:36"),
             new CheerSong("NC:7:nc7", "기본응원가", "다이노 김주원오 NC 김주원 힘차게 달려 라랄랄라 오오오 NC 김주원 승리를 위해 라랄라오 NC 김주원 힘차게 달려 라랄랄라 오오오 NC 김주원 승리를 위해 라랄라다이노스 김! 주! 원!", "nc7.mp3", "NC:7"),
             new CheerSong("NC:68:nc68", "기본응원가", "오오오 김한별 승리를 위하여 안타 치고 달려라 (김한별!)오오오 김한별 승리를 위하여 다이노스 김한별 날려라", "nc68.mp3", "NC:68"),
             new CheerSong("NC:25:nc25", "기본응원가", "오오오 NC 김형준! 오오 오오오오다이노스 승리를 위해 NC 김형준 (김!형!준!) X2", "nc25.mp3", "NC:25"),
@@ -632,13 +638,15 @@ public class RedisDataLoader implements CommandLineRunner {
             new CheerSong("NC:10:nc10", "기본응원가", "워어우워어어 NC 박세혁 워어우워어어 NC 박세혁워우워 안방마님 박세혁! 워우워 다이노스 박세혁!", "nc10.mp3", "NC:10"),
             new CheerSong("NC:53:nc53", "기본응원가", "다이노스 박시원 오오오오오오오오오오 (안! 타! 박시원!)다이노스 박시원 (시원하게 쌔리라!)", "nc53.mp3", "NC:53"),
             new CheerSong("NC:5:nc5", "기본응원가", "다이노스 서호철 워어어 워어 안! 타! 다이노스 서호철 승리를 위해 안! 타!", "nc5.mp3", "NC:5"),
-            new CheerSong("NC:31:nc31", "기본응원가", "오! 다이노스 손아섭 NC 승리 위해! 오! 오오오다! 이! 노! 스! 손! 아! 섭!", "nc31.mp3", "NC:31"),
             new CheerSong("NC:1:nc1", "기본응원가", "다이노스 안중열 거침없이 가자 가자 안중열 (안중열 안타!)다이노스 안중열 거침없이 안타 안타 안중열 (안중열 안타!)", "nc1.mp3", "NC:1"),
             new CheerSong("NC:34:nc34", "기본응원가", "오! 오영수 NC 다이노스 오영수안타를 (쌔리라!) 홈런을 (쌔리라!) 다! 이! 노! 스! 오! 영! 수!", "nc34.mp3", "NC:34"),
             new CheerSong("NC:23:nc23", "기본응원가", "다이노스 천재환 오오오 워어어어 다이노스 천재환 (안! 타! 천재환!)다이노스 천재환 오오오 워어어어 다이노스 천재환 (홈! 런! 천재환!)", "nc23.mp3", "NC:23"),
             new CheerSong("NC:14:nc14", "기본응원가", "다이노스 NC 최정원 안타 안타 날려버려 다이노스 NC 최정원 안타 오오오 최! 정! 원!", "nc14.mp3", "NC:14"),
             new CheerSong("NC:33:nc33", "기본응원가", "NC 한석현 NC 한석현 NC 한석현 거침없이 가! 자! NC 한석현 NC 한석현 NC 한석현 승리위해 안! 타!NC 한석현 NC 한석현 NC 한석현 오오오오 안! 타! NC 한석현 NC 한석현 NC 한석현 다이노스 한! 석! 현!", "nc33.mp3", "NC:33"),
-            new CheerSong("SK:18:sk18", "기본응원가", "아고명준 오오오 오(×3)랜더스의 고명준!×2", "sk18.mp3", "SK:18"),
+                new CheerSong("NC:55:nc55", "기본응원가", "다이노스 이우성\n승리위해 날려라\n우리들의 별이 되어\n오 이우성\n안! 타! 이우성!\n홈! 런! 이우성!", "nc33.mp3", "NC:33"),
+                new CheerSong("NC:31:nc31", "기본응원가", "오오오 최원준\n다이노스 최원준 안타\n우리들의 승리 위해\n치고 달려라\n오오오 최원준\n다이노스 최원준(안타! 안타!)\n오 최원준", "nc31.mp3", "NC:31"),
+                new CheerSong("NC:4:nc4", "기본응원가", "다이노스! 홍종표\n꿈을 향해서\n다이노스 홍종표\n치고 달려라\n홍종표! 홍종표!\n꿈을 향해 달려라\n다이노스 홍종표!", "nc31.mp3", "NC:31"),
+                new CheerSong("SK:18:sk18", "기본응원가", "아고명준 오오오 오(×3)랜더스의 고명준!×2", "sk18.mp3", "SK:18"),
             new CheerSong("SK:24:sk24", "기본응원가", "오! 김민식 안타 워 워어어어오! 김민식 안타 워어 워어어어×2", "sk24.mp3", "SK:24"),
             new CheerSong("SK:56:sk56", "기본응원가", "김성민 날려라 오오오오오김성민 오! 안타 날려라×2", "sk56.mp3", "SK:56"),
             new CheerSong("SK:6:sk6", "기본응원가", "랜더스의 김성현 날려버려 김성현아아아아아아아아 안타!오오오오오오오오 안타!×2", "sk6.mp3", "SK:6"),
@@ -660,7 +668,9 @@ public class RedisDataLoader implements CommandLineRunner {
             new CheerSong("SK:54:sk54", "기본응원가", "최지훈 안타! 최지훈 안타! 오오 오 오오오최지훈 안타! 최지훈 안타! 랜더스의 승리 위하여×2", "sk54.mp3", "SK:54"),
             new CheerSong("SK:13:sk13", "기본응원가", "하! 재! 훈랜더스의! 하재훈 안타워어어어어 하재훈 안타랜더스의! 하재훈 안타승리를 위해 하재훈 안타×2", "sk13.mp3", "SK:13"),
             new CheerSong("SK:35:sk35", "기본응원가", "야 야 야 야한유섬 날려버려라(홈런!) (×2)한유섬 날려버려라×2", "sk35.mp3", "SK:35"),
-            new CheerSong("OB:23:ob23", "기본응원가", "강승호 안타! 강승호 안타! 최강두산 강승호\n강승호 두산의 강승호 강! 승! 호! [X2]", "ob23.mp3", "OB:23"),
+                new CheerSong("SK:1:sk1", "기본응원가", "랜더스 박지환\n안타를 날려라\n워어어 워어어 워어어\n랜더스 박지환\n승리를 위하여\n워어어 워어어 워어어\n(박지환!)", "sk1.mp3", "SK:1"),
+                new CheerSong("SK:47:sk47", "기본응원가", "김성욱 랜더스를 위해\n날려라 워어어\n랜더스 김성욱 안!타!\n김성욱 랜더스를 위해\n달려라 워어어\n랜더스 김성욱\n김성욱!", "sk47.mp3", "SK:47"),
+                new CheerSong("OB:23:ob23", "기본응원가", "강승호 안타! 강승호 안타! 최강두산 강승호\n강승호 두산의 강승호 강! 승! 호! [X2]", "ob23.mp3", "OB:23"),
             new CheerSong("OB:45:ob45", "기본응원가", "김기연 안타날려라! 김기연 홈런날려라!\n베어스 승리 위해 오오오 김기연\n김기연 안타날려라! 김기연 홈런날려라!\n베어스의 승리 위하여 오 김! 기! 연!", "ob45.mp3", "OB:45"),
             new CheerSong("OB:27:ob27", "기본응원가", "두산의 김대한 안타! 안타 워어어어! [X4]", "ob27.mp3", "OB:27"),
             new CheerSong("OB:2:ob2", "기본응원가", "두산의 김민석 힘차게 치고 달려라!\n두산의 김민석 승리를 위해 날려라!\n오오오오오오오오 승리를 위해\n[X2]", "ob2.mp3", "OB:2"),
@@ -677,7 +687,8 @@ public class RedisDataLoader implements CommandLineRunner {
             new CheerSong("OB:31:ob31", "기본응원가", "수빈! 두산의 정수빈 수빈! 승리를 위하여\n수빈! 힘차게 치고 달려 최강두산 정수빈! [X2]", "ob31.mp3", "OB:31"),
             new CheerSong("OB:51:ob51", "기본응원가", "조수행! 조수행! 조수행! 조수행! 안타치고 도루하고 라라라라 라라라라라! 조! 수! 행! [X2]", "ob51.mp3", "OB:51"),
             new CheerSong("OB:8:ob8", "기본응원가", "최강두산 케이브 최강두산 케이브\n승리를 위해 모두외쳐라!\n오오오오오오 케! 이! 브![X2]", "ob8.mp3", "OB:8"),
-            new CheerSong("KT:50:kt50(1)", "기본응원가", "kt wiz 강백호(호) kt wiz 강백호\n승리를(호)위하여(호) k t wi z 강 백 호", "kt50(1).mp3", "KT:50"),
+                new CheerSong("OB:52:ob52", "기본응원가", "준순 준순\n박! 준! 순!\n준순 준순\n박! 준! 순!\n베어스의 승리를 위해\n좌측! 우측!\n날려버려라!", "ob52.mp3", "OB:52"),
+                new CheerSong("KT:50:kt50(1)", "기본응원가", "kt wiz 강백호(호) kt wiz 강백호\n승리를(호)위하여(호) k t wi z 강 백 호", "kt50(1).mp3", "KT:50"),
             new CheerSong("KT:50:kt50(2)", "두번째 응원가", "강백호 오오 오오오 오오\n강백호 오오 오오오 홈런!", "kt50(2).mp3", "KT:50"),
             new CheerSong("KT:55:kt55", "기본응원가", "kt위즈 승리위해 강현우 워 워어어어\nkt위즈 안방마님 강현우 워 워어어어\nkt위즈 승리위해 강현우 워 워어어어\nkt위즈 안방마님 강현우 워 워어어어 강!현!우!", "kt55.mp3", "KT:55"),
             new CheerSong("KT:52:kt52(1)", "기본응원가", "kt 권동진 안타 kt 권동진 안타\n안타를 날려라 kt wiz 권동진 안타\nkt 권동진 안타 kt 권동진 안타\n날려버려 권동진 You can do it go!", "kt52(1).mp3", "KT:52"),
@@ -685,8 +696,6 @@ public class RedisDataLoader implements CommandLineRunner {
             new CheerSong("KT:53:kt53", "기본응원가", "kt wiz 김민혁 날려버려 김민혁\nWe can come together\nWe can come together\n(간주) 안! 타! (간주) 안! 타!\n(간주) 김!민!혁!", "kt53.mp3", "KT:53"),
             new CheerSong("KT:7:kt7(1)", "기본응원가", "날려버려 김상수 야야야야야\n안타안타 김상수 야야야야야", "kt7(1).mp3", "KT:7"),
             new CheerSong("KT:7:kt7(2)", "두번째 응원가", "날려버려 안타 김상수\n날려버려 안타 김상수\n날려버려 안타 김상수 상수\n김상수 김상수 kt wiz 김상수\nkt wiz 승리 위해 워어\n김상수 김상수 kt wiz 김상수\nkt wiz 김상수 김상수!", "kt7(2).mp3", "KT:7"),
-            new CheerSong("KT:44:kt44", "기본응원가", "kt의 김준태 안타 kt의 김준태 워어어어\nkt 승리위해 김준태 날려버려\nkt의 김준태 안타 kt의 김준태 워어어어\nkt 승리위해 김준태 날려버려\n안!타! 김!준!태!", "kt44.mp3", "KT:44"),
-            new CheerSong("KT:3:kt3", "기본응원가", "kt의 로하스 wow!\nkt의 로하스 워어!\nkt의 로하스 wow!\nkt의 로하스 워어!\nkt 로하스 화이팅\nkt 로하스 화이팅\nkt의 로하스 워어어어어\n로! 하! 스!", "kt3.mp3", "KT:3"),
             new CheerSong("KT:24:kt24", "기본응원가", "kt 문상철 워우 워우워우워 )\nkt 문상철 워우 워우워우워\nkt 문상철 워우 워우워우워\n신나게 외쳐봅시다 문! 상! 철!", "kt24.mp3", "KT:24"),
             new CheerSong("KT:27:kt27", "기본응원가", "kt 배정대 나나나나나나\nkt 배정대 나나나나나나\nkt 배정대 나나나나나나\nkt wiz 승리를 위해\n1루 2루 3루 홈 빵야!", "kt27.mp3", "KT:27"),
             new CheerSong("KT:28:kt28", "기본응원가", "송민섭이 섭이섭이섭이\nkt wiz의 폭풍질주 송민섭", "kt28.mp3", "KT:28"),
@@ -701,7 +710,9 @@ public class RedisDataLoader implements CommandLineRunner {
             new CheerSong("KT:14:kt14", "기본응원가", "안타를 날려버려 천성호 워어어\n홈런을 날려버려 천성호\n오오오 kt위즈 승리위해 천성호 안타 워어\n안타를 날려버려 천성호 워어어\n홈런을 날려버려 천성호\n오오오 kt위즈 승리위해 천성호 안타 워어어어 천!성!호!", "kt14.mp3", "KT:14"),
             new CheerSong("KT:13:kt13", "기본응원가", "kt 허경민 안타 허경민\nkt 허경민 안타 허경민\n나나나나 나나나 나나나\nkt 승리를 위하여", "kt13.mp3", "KT:13"),
             new CheerSong("KT:10:kt10", "기본응원가", "황재균 황재균 kt wiz 황재균 워어\n승리를 위하여 날!려!버!려! 황!재!균!\n황재균 황재균 kt wiz의 황재균 워어\n안타! 홈런! 날려버려 kt 황재균!", "kt10.mp3", "KT:10"),
-            new CheerSong("WO:44:wo44", "기본응원가", "고!영우 승리위해 안타 날려버려\n고!영우 승리를 위해\n오오오 고영우 오오오 고영우 오오오 고영우 워어어어\n고!영우 승리위해 안타 날려버려\n고!영우 승리를 위해\n오오오 고영우 오오오 고영우 오오오 고영우 워어어어", "wo44.mp3", "WO:44"),
+                new CheerSong("KT:33:kt33", "기본응원가", "KT 이정훈 워어어\n날려버려 이정훈\nKT의 승리를 위하여\n안타 워어어\n이! 정! 훈!", "kt33.mp3", "KT:33"),
+                new CheerSong("KT:3:kt3", "기본응원가", "앤드류 스티븐슨\n아이야이야\n앤드류 스티븐슨\n아이야이야\n앤드류 스티븐슨\n아이야이야\n앤드류 스티븐슨\n아이야이야 헤이!", "kt3.mp3", "KT:3"),
+                new CheerSong("WO:44:wo44", "기본응원가", "고!영우 승리위해 안타 날려버려\n고!영우 승리를 위해\n오오오 고영우 오오오 고영우 오오오 고영우 워어어어\n고!영우 승리위해 안타 날려버려\n고!영우 승리를 위해\n오오오 고영우 오오오 고영우 오오오 고영우 워어어어", "wo44.mp3", "WO:44"),
             new CheerSong("WO:12:wo12", "기본응원가", "안타! 안타! 안타! 김건희!\n키움 히어로즈 김건희 오 히어로즈 김건희\n안방마님 김건희 오오오 김!건!희!\n키움 히어로즈 김건희 오 히어로즈 김건희\n안방마님 김건희 오오오 김!건!희!", "wo12.mp3", "WO:12"),
             new CheerSong("WO:38:wo38", "기본응원가", "김동엽 워어어어 홈런! 김동엽 워어어어 홈런!\n승리의 영웅이 되리 김동엽\n김동엽 워어어어 홈런! 김동엽 워어어어 홈런!\n승리의 영웅이 되리 김동엽", "wo38.mp3", "WO:38"),
             new CheerSong("WO:47:wo47", "기본응원가", "히어로 김 (김!) 동 (동!) 헌 (헌!) 오오오 오오오\n히어로 김 (김!) 동 (동!) 헌 (헌!) 오오오 오오오\n히어로 김 (김!) 동 (동!) 헌 (헌!) 오오오 오오오\n히어로 김 (김!) 동 (동!) 헌 (헌!) 오오오 오오오", "wo47.mp3", "WO:47"),
@@ -742,16 +753,15 @@ public class RedisDataLoader implements CommandLineRunner {
             new CheerSong("HT:56:ht56", "기본응원가", "오오 기아 오선우 나나나나\n안타 날려라 홈런 날려라 승리를 위해\n오오 기아 오선우 나나나나\n타이거즈 승리를 위해 워우워우 오!선!우!", "ht56.mp3", "HT:56"),
             new CheerSong("HT:45:ht45", "기본응원가", "홈런 KIA 위즈덤\n힘차게 날려라 워우워우\n홈런 KIA 위즈덤\n승리를 위하여 워우워우\n홈런 KIA 위즈덤\n힘차게 날려라 워우워우\n홈런 KIA 위즈덤\n승리를 위하여 워우워우", "ht45.mp3", "HT:45"),
             new CheerSong("HT:9:ht9", "기본응원가", "안!타! 최강 KIA 윤도현\n홈!런! 타이거즈 윤도현\n승리를 위하여 오오오오 오오 오오\n안!타! 최강 KIA 윤도현\n홈!런! 타이거즈 윤도현\n승리를 위하여 오오오오 오오 오오", "ht9.mp3", "HT:9"),
-            new CheerSong("HT:25:ht25", "기본응원가", "타이거즈 이우성 워어어어\n타이거즈 이우성 워어어어\n타이거즈 이우성 워어어어\nKIA! 이우성!\n타이거즈 이우성 워어어어\n타이거즈 이우성 워어어어\n타이거즈 이우성 워어어어\nKIA! 이우성!", "ht25.mp3", "HT:25"),
             new CheerSong("HT:8:ht8", "기본응원가", "안 타 워어 KIA 이창진\n홈런 워어 KIA 이창진\n승리를 위해 다같이 외쳐 KIA! 이창진!", "ht8.mp3", "HT:8"),
             new CheerSong("HT:22:ht22", "기본응원가", "워 워 시원하게 안타\n화끈하게 홈런 KIA 주효상\n날려버려라 승리를 위하여\n워우워우워우워\n워 워 시원하게 안타\n화끈하게 홈런 KIA 주효상\n날려버려라 승리를 위하여\nKIA! 주!효!상!", "ht22.mp3", "HT:22"),
-            new CheerSong("HT:16:ht16", "기본응원가", "워어어 KIA 최원준 워어어 KIA 최원준\n워 어 어오! 힘차게 날려라 (최! 원! 준!)\n워어어 KIA 최원준 워어어 KIA 최원준\n워 어 어오! 승리를 위해 (최! 원! 준!)", "ht16.mp3", "HT:16"),
             new CheerSong("HT:34:ht34(1)", "기본응원가", "최강 KIA 타이거즈 최형우 (최!형!우!)\n최강 KIA 타이거즈 최형우 (최!형!우!)\n워 최형우 워 최형우 워 최형우 KIA의 해결사!", "ht34(1).mp3", "HT:34"),
             new CheerSong("HT:34:ht34(2)", "두번째 응원가", "(This is Our House) KIA! 최형우!\n(This is Our House) KIA! 최형우!\n워어어어어 KIA! 최형우!\n워어어어어 KIA! 최형우!", "ht34(2).mp3", "HT:34"),
             new CheerSong("HT:26:ht26", "기본응원가", "KIA 한승택 KIA의 안방마님 한승택 워어\nKIA 한승택 한승택 워어어 워어어", "ht26.mp3", "HT:26"),
             new CheerSong("HT:55:ht55", "기본응원가", "기아의 한준수 워어어 어어어어\n날려라 한준수 워어어어어\nKIA의 한준수 워어어 어어어어\n날려라 한준수 워어어어어\nKIA의 한준수 워어어 어어어어\n날려라 한준수 워어어어어\nKIA의 한준수 워어어 어어어어\n날려라 한준수 워어어어어", "ht55.mp3", "HT:55"),
             new CheerSong("HT:6:ht6", "기본응원가", "날려라 홍종표 달려라 홍종표 기아의 날쌘돌이 홍종표\n승리를 위하여 달려간다 워어 타이거즈 홍종표\n날려라 홍종표 달려라 홍종표 기아의 날쌘돌이 홍종표\n승리를 위하여 치고 달려라 기!아! 홍종표!", "ht6.mp3", "HT:6"),
-            new CheerSong("HT:52:ht52", "기본응원가", "안타를 날려라 홈런을 날려라\n오오오 KIA 타이거즈 황대인\n승리를 위하여 다함께 외쳐라\n안타! 홈런! 황!대!인! ×2", "ht52.mp3", "HT:52")
+            new CheerSong("HT:52:ht52", "기본응원가", "안타를 날려라 홈런을 날려라\n오오오 KIA 타이거즈 황대인\n승리를 위하여 다함께 외쳐라\n안타! 홈런! 황!대!인! ×2", "ht52.mp3", "HT:52"),
+                new CheerSong("HT:2:ht2", "기본응원가", "타이거즈의 박민\n워어어어\n안타 홈런 날려버려 워우어\n기아 승리를 위해 달려\n박! 민! [X2]\n영원토록 달려갈거야", "ht2.mp3", "HT:2")
         );
 
         cheerSongRepository.saveAll(cheerSongs);

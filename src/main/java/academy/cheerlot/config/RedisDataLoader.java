@@ -517,11 +517,9 @@ public class RedisDataLoader implements CommandLineRunner {
             new Player("황대인", "52", "교체 선수", "HT", "0"),
                 new Player("김선우", "16", "교체 선수", "HT", "0"),
                 new Player("신명승", "42", "교체 선수", "HT", "0"),
-                new Player("박상준", "5", "교체 선수", "HT", "0"),
                 new Player("장시현", "11", "교체 선수", "HT", "0"),
                 new Player("정현창", "12", "2루수, 좌타", "HT", "9"),
                 new Player("박헌", "67", "교체 선수", "HT", "0"),
-                new Player("예진원", "8", "교체 선수", "HT", "0"),
                 new Player("한승연", "37", "교체 선수", "HT", "0")
         );
         playerRepository.saveAll(htPlayers);
